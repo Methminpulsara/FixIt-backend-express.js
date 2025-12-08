@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const applyUserPrivacy = require("../utils/applyUserPrivacy");
+const userService = require('../services/UserService')
 
 exports.getUserProfile = async (req, res) => {
     try {
@@ -8,6 +9,35 @@ exports.getUserProfile = async (req, res) => {
         const result = applyUserPrivacy(user, req.viewer);
 
         res.json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+
+// OWN PROFILE MANAGE
+exports.getMyProfile = async (req, res) => {
+    try {
+        const data = await userService.getMyProfile(req.user.id);
+        res.json(data);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+// exports.updateMyProfile = async (req, res) => {
+//     try {
+//         const data = await userService.updateMyProfile(req.user.id, req.body);
+//         res.json(data);
+//     } catch (err) {
+//         res.status(400).json({ message: err.message });
+//     }
+// };
+
+exports.updateMyProfile = async (req, res) => {  // ← Controller name change
+    try {
+        const data = await userService.updateMyProfile(req.user.id, req.body);
+        res.json({ success: true, data });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
