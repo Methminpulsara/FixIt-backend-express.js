@@ -1,14 +1,26 @@
 require('dotenv').config();
+console.log("JWT SECRET => ", process.env.JWT_SECRET);
+
+const authRouter = require("./routes/auth/auth.js")
+const privacy = require('./middleware/privacy')
 
 const express = require('express');
-const cors  = require('cors');  // <-- fix here
+const cors  = require('cors');  
+const connectDB = require('./config/db')
 
+connectDB()
 const app = express();
 
+
+
+app.use(privacy);
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req , res) => {
+app.use("/api/v1/auth", authRouter);
+
+
+app.get('/api/v1', (req , res) => {
     res.send("works")
 })
 
