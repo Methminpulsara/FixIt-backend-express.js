@@ -19,3 +19,15 @@ exports.updateById = async (id, updates) => {  // ← async add කරන්න
         runValidators: true  // ← Validation run කරන්න
     }).select("-password");
 };
+
+
+
+exports.updateVisibility = (id, visibility)=>{
+    return User.findByIdAndUpdate(
+        id,
+        {visibilitySettings:visibility},
+        {new:true, runValidators:true}
+    ).select("-password")
+};
+
+

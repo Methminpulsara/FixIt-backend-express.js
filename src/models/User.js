@@ -1,33 +1,70 @@
-const { default: mongoose } = require("mongoose")
+const mongoose = require("mongoose");
 
+const UserSchema = new mongoose.Schema(
+    {
+        username: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true
+        },
 
-const UserSchema = new mongoose.Schema({
+        firstName: {
+            type: String,
+            required: true
+        },
 
-    username : {type:String , required : true, unique : true},
-    firstname: {type:String , required: true},
-    lastname: {type:String , required: true},
-    displayname: {type:String },
-    email: {type:String , required: true, unique : true},
-    phone: {type:String , required: true},
-    password: {type:String , required: true},
+        lastName: {
+            type: String,
+            required: true
+        },
 
-    type: {
-        type:String,
-        enum: ["customer", "mechanic", "garage"],
-        requierd: true
+        displayName: {
+            type: String,
+            default: ""
+        },
+
+        email: {
+            type: String,
+            required: true,
+            unique: true
+        },
+
+        phone: {
+            type: String,
+            required: true
+        },
+
+        password: {
+            type: String,
+            required: true
+        },
+
+        type: {
+            type: String,
+            enum: ["customer", "mechanic", "garage"],
+            required: true
+        },
+
+        // LOCATION FOR REALTIME
+        location: {
+            lat: { type: Number },
+            lng: { type: Number }
+        },
+
+        // PRIVACY SETTINGS (MATCHING applyUserPrivacy system)
+        visibilitySettings: {
+            showProfile: { type: Boolean, default: true },
+            showPhone: { type: Boolean, default: false },
+            showLocation: { type: Boolean, default: false }
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
     },
-   location: {
-        lat: { type: Number },
-        lng: { type: Number }
-    },
-    visibilitySettings: {
-        showProfile: { type: Boolean, default: true },
-        showPhone: { type: Boolean, default: false },
-        showLocation: { type: Boolean, default: false }
-    },
-        createdAt: { type: Date, default: Date.now }
+    { timestamps: true }
+);
 
-
-});
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

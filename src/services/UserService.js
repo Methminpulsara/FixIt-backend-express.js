@@ -7,7 +7,7 @@ exports.getMyProfile = async (userId) => {
 
 
 exports.updateMyProfile = async (userId, body) => {
-    const allowed = ["firstname", "lastname", "phone", "displayname"];
+    const allowed = ["firstName", "lastName", "phone", "displayName"];
     const updates = {};
     
     allowed.forEach(f => {
@@ -15,4 +15,19 @@ exports.updateMyProfile = async (userId, body) => {
     });
     
     return userRepo.updateById(userId, updates);
+};
+
+
+exports.updateVisibilitySettings = async (userId, body) =>{
+    const allowed = ["showProfile", "showPhone", "showLocation"];
+    const visibility = {};
+
+    allowed.forEach(key=>{
+        if(body[key] !== undefined){
+            visibility[key] = body[key];
+        }
+    })
+
+    return userRepo.updateVisibility(userId, visibility);
+
 };

@@ -25,14 +25,6 @@ exports.getMyProfile = async (req, res) => {
     }
 };
 
-// exports.updateMyProfile = async (req, res) => {
-//     try {
-//         const data = await userService.updateMyProfile(req.user.id, req.body);
-//         res.json(data);
-//     } catch (err) {
-//         res.status(400).json({ message: err.message });
-//     }
-// };
 
 exports.updateMyProfile = async (req, res) => {  // ← Controller name change
     try {
@@ -42,3 +34,18 @@ exports.updateMyProfile = async (req, res) => {  // ← Controller name change
         res.status(400).json({ message: err.message });
     }
 };
+
+
+//visibiltyUpdate krnn 
+exports.updateVisibiitySettings = async (req , res ) =>{
+    try {
+        const result = await userService.updateVisibilitySettings(
+            req.user.id,
+            req.body
+        )
+
+        res.json({success:true , visibility:result.visibilitySettings})
+    } catch (error) {
+        res.status(400).json({message:error.message})
+    }
+}

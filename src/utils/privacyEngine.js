@@ -18,7 +18,7 @@ module.exports = (user, viewer) => {
         type: user.type
     };
 
-    // Profile
+    // Profile fields
     if (visibility.showProfile || isOwner) {
         filtered.firstName = user.firstName;
         filtered.lastName = user.lastName;
