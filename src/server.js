@@ -1,30 +1,21 @@
 require('dotenv').config();
-console.log("JWT SECRET => ", process.env.JWT_SECRET);
+const http = require("http");
+const app = require("./app");
+const connectDB = require("./config/db");
+const { initLocationSocket } = require("./realtime/locationSocket");
 
+connectDB(); // Connect DB first
 
-const authRouter = require("./routes/auth/auth.js")
-const privacy = require('./middleware/privacy')
+const server = http.createServer(app);
 
-const express = require('express');
-const cors  = require('cors');  
-const connectDB = require('./config/db')
+const io = require("socket.io")(server, {
+  cors: { origin: "*" }
+});
 
-connectDB()
-const app = express();
-
-
-
-app.use(privacy);
-app.use(cors());
-app.use(express.json());
-
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1", require("./routes/userRoutes"))
-
-
-app.get('/', (req , res) => {
-    res.send("works")
-})
+// Initialize socket module
+initLocationSocket(io);
 
 const port = 5000;
-app.listen(port, () => console.log("Server is running on port " + port));
+server.listen(port, () =>
+  console.log("🚀 Server + WebSocket running on port " + port)
+);

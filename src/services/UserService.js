@@ -31,3 +31,8 @@ exports.updateVisibilitySettings = async (userId, body) =>{
     return userRepo.updateVisibility(userId, visibility);
 
 };
+
+
+exports.updateLocation = async (userId, location) => {
+    return userRepo.updateById(userId, { location });
+};

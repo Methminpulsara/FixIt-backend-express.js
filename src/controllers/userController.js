@@ -49,3 +49,15 @@ exports.updateVisibiitySettings = async (req , res ) =>{
         res.status(400).json({message:error.message})
     }
 }
+
+
+exports.updateLocation = async (req, res) => {
+    const { lat, lng } = req.body;
+
+    if (!lat || !lng)
+        return res.status(400).json({ message: "lat & lng required" });
+
+    const updated = await userService.updateLocation(req.user.id, { lat, lng });
+
+    res.json({ success: true, location: updated.location });
+};

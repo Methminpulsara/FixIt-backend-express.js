@@ -14,5 +14,6 @@ router.get("/:id", privacy , userController.getUserProfile)
 // Visibility settings
 router.patch("/me/visibility" , authMiddleware , userController.updateVisibiitySettings)
 
+router.put("/location", authMiddleware, userController.updateLocation);
 
 module.exports = router;
