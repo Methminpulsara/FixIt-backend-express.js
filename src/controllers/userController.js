@@ -30,6 +30,7 @@ exports.updateMyProfile = async (req, res) => {  // ← Controller name change
     try {
         const data = await userService.updateMyProfile(req.user.id, req.body);
         res.json({ success: true, data });
+        log(req.body)
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -52,21 +53,12 @@ exports.updateVisibiitySettings = async (req , res ) =>{
 
 
 exports.updateLocation = async (req, res) => {
-    try {
-        const { lat, lng } = req.body;
+    const { lat, lng } = req.body;
 
-        if (lat === undefined || lng === undefined) {
-            return res.status(400).json({ message: "lat & lng required" });
-        }
+    const updated = await userService.updateLocation(req.user.id, { lat, lng });
 
-        const result = await userService.updateLocation(req.user.id, { lat, lng });
-
-        res.json({
-            success: true,
-            location: result.location
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+    res.json({
+        success: true,
+        location: updated.location
+    });
 };

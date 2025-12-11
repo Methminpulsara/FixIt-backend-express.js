@@ -6,7 +6,7 @@ const privacy = require("../middleware/privacy");
 
 // Owen profile manage
 router.get("/me", authMiddleware , userController.getMyProfile)
-router.put("/me", authMiddleware, userController.getMyProfile)
+router.put("/me", authMiddleware, userController.updateMyProfile)
 
 // Public profile (with privacy filtering)
 router.get("/:id", privacy , userController.getUserProfile)

@@ -29,10 +29,10 @@ exports.registerUser = async (body) => {
 
 exports.loginUser = async ({ email, password }) => {
     const user = await userRepo.findByEmail(email);
-    if (!user) throw new Error("Invalid email");
+    if (!user) throw new Error("Invalid email or Password");
 
     const ok = await bcrypt.compare(password, user.password);
-    if (!ok) throw new Error("Invalid password");
+    if (!ok) throw new Error("Invalid email or Password ");
 
     return {
         user,

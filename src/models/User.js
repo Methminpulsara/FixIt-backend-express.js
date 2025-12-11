@@ -47,13 +47,18 @@ const UserSchema = new mongoose.Schema(
         },
 
         // LOCATION FOR REALTIME
-        location: {
-            type: {
-                lat: Number,
-                lng: Number
-            },
-            default: null
-        },
+   location: {
+    type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point"
+    },
+    coordinates: {
+        type: [Number],  // [lng, lat]
+        default: [0,0]
+    }
+},
+
 
         // PRIVACY SETTINGS (MATCHING applyUserPrivacy system)
         visibilitySettings: {

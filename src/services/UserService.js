@@ -34,11 +34,10 @@ exports.updateVisibilitySettings = async (userId, body) =>{
 
 
 exports.updateLocation = async (userId, location) => {
-
-    const formatted = {
+    const geo = {
         type: "Point",
         coordinates: [location.lng, location.lat]
     };
 
-    return userRepo.updateByIdLocation(userId, { location: formatted });
+    return userRepo.updateByIdLocation(userId, { location: geo });
 };
