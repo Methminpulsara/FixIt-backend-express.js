@@ -21,6 +21,9 @@ exports.updateById = async (id, updates) => {  // ← async add කරන්න
 };
 
 
+exports.updateByIdLocation = (id, data) => {
+    return User.findByIdAndUpdate(id, data, { new: true });
+};
 
 exports.updateVisibility = (id, visibility)=>{
     return User.findByIdAndUpdate(

@@ -48,8 +48,11 @@ const UserSchema = new mongoose.Schema(
 
         // LOCATION FOR REALTIME
         location: {
-            lat: { type: Number },
-            lng: { type: Number }
+            type: {
+                lat: Number,
+                lng: Number
+            },
+            default: null
         },
 
         // PRIVACY SETTINGS (MATCHING applyUserPrivacy system)

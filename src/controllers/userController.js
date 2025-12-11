@@ -52,12 +52,21 @@ exports.updateVisibiitySettings = async (req , res ) =>{
 
 
 exports.updateLocation = async (req, res) => {
-    const { lat, lng } = req.body;
+    try {
+        const { lat, lng } = req.body;
 
-    if (!lat || !lng)
-        return res.status(400).json({ message: "lat & lng required" });
+        if (lat === undefined || lng === undefined) {
+            return res.status(400).json({ message: "lat & lng required" });
+        }
 
-    const updated = await userService.updateLocation(req.user.id, { lat, lng });
+        const result = await userService.updateLocation(req.user.id, { lat, lng });
 
-    res.json({ success: true, location: updated.location });
+        res.json({
+            success: true,
+            location: result.location
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 };
