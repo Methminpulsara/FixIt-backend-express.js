@@ -1,8 +1,10 @@
 const User = require("../models/User");
 
 exports.findNearbyMechanics = async (lng, lat, distanceInMeters = 5000) => {
+    
     return User.find({
         type: "mechanic",
+
         location: {
             $near: {
                 $geometry: {
@@ -14,3 +16,4 @@ exports.findNearbyMechanics = async (lng, lat, distanceInMeters = 5000) => {
         }
     }).select("-password");
 };
+

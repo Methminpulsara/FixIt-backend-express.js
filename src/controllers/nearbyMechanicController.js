@@ -10,7 +10,7 @@ exports.getNearbyMechanics = async (req, res) => {
 
         const result = await nearbyService.getNearbyMechanics(
             { lat: Number(lat), lng: Number(lng) },
-            Number(radius) || 5000  // default 5km
+            Number(radius) || 30000  // default 5km
         );
 
         res.json({
