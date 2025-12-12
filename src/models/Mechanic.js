@@ -1,4 +1,6 @@
-const MechanicProfileSchema = new mongoose.Schema({
+const mongoose = require("mongoose");
+
+const Mechanic = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
     skills: [String],
@@ -20,5 +22,6 @@ const MechanicProfileSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-});
-module.exports = mongoose.model("MechanicProfile", MechanicProfileSchema);
+}, { timestamps: true });
+
+module.exports = mongoose.model("Mechanic", Mechanic);
