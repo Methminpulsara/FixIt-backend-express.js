@@ -15,6 +15,6 @@ exports.getMechanicProfile = (userId) => {
     return mechanicRepository.getByUserId(userId);
 };
 
-exports.updateMechanicProfile = (userId, body) => {
-    return mechanicRepository.updateByUserId(userId, body);
+exports.updateMechanicProfile = async (userId, body) => {
+    return await mechanicRepository.updateByUserId(userId, body);
 };

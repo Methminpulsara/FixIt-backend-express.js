@@ -4,25 +4,35 @@ const MechanicProfile = require("../models/Mechanic")
 
 exports.createProfile = (data) => MechanicProfile.create(data);
 
-exports.getByUserId = (userid)=>{
-    return MechanicProfile.findOne({userid});
+exports.getByUserId = (userId)=>{
+    return MechanicProfile.findOne({userId});
 }
 
+// update by user id 
+exports.updateByUserId = (userId, data) => {
+    return MechanicProfile.findOneAndUpdate(
+        { userId },
+        data,
+        { new: true }
+    );
+};
 
-exports.updateByUserId = (userid , data) =>{
-   return MechanicProfile.findByIdAndUpdate(
-        {userid},
-         data , 
-         {new : true}
-        );
-}
+exports.updateByUserIdAprovedOrReject = (id, data) => {
+    return MechanicProfile.findByIdAndUpdate(
+        id,
+        data,
+        { new: true }
+    );
+};
 
 
-exports.findPending =() =>{
-    return MechanicProfile.find({
-        verificationStatus:"pending"
-    }).populate("userId", "-password")
-}
+
+// ADMIN – FIND PENDING
+exports.findPending = () => {
+    return MechanicProfile.find({ verificationStatus: "pending" })
+        .populate("userId", "-password");
+};
+
 
 
 

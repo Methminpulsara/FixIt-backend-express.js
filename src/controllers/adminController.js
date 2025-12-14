@@ -12,22 +12,22 @@ exports.getPendingMechanics =  async (req, res)=>{
 }
 
 
-exports.approveMechanics = async (req, res) =>{
+exports.approveMechanics = async (req, res) => {
     try {
-        
-        const result = adminService.approveMechanic(req.params.id);
+        const result = await adminService.approveMechanic(req.params.id);
+        if (!result) return res.status(404).json({ message: "Mechanic not found" });
         res.json({ success: true, mechanic: result });
     } catch (error) {
-        res.status(400).status({message: "can't approve you"})
+        res.status(400).json({ message: "can't approve you" });
     }
-}
+};
 
-exports.rejectMechanics = async (req, res) =>{
+exports.rejectMechanics = async (req, res) => {
     try {
-        
-        const result = adminService.rejectMechanic(req.params.id);
+        const result = await adminService.rejectMechanic(req.params.id);
+        if (!result) return res.status(404).json({ message: "Mechanic not found" });
         res.json({ success: true, mechanic: result });
     } catch (error) {
-        res.status(400).status({message: "can't reject you"})
+        res.status(400).json({ message: "can't reject you" });
     }
-}
+};

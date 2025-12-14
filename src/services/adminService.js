@@ -6,17 +6,16 @@ exports.findPending = () =>{
     return mechanicRepository.findPending();
 }
 
-exports.approveMechanic = (id) => {
-    return mechanicRepository.updateByUserId(id , {
-        verificationStatus : "approved",
-        isVerified : true
+exports.approveMechanic = async (id) => {
+    return await mechanicRepository.updateByUserIdAprovedOrReject(id, {
+        verificationStatus: "approved",
+        isVerified: true
     });
 };
 
-exports.rejectMechanic = (id) => {
-    return mechanicRepository.updateByUserId(id , {
-        verificationStatus : "rejected",
-        isVerified : false
+exports.rejectMechanic = async (id) => {
+    return await mechanicRepository.updateByUserIdAprovedOrReject(id, {
+        verificationStatus: "rejected",
+        isVerified: false
     });
 };
-
