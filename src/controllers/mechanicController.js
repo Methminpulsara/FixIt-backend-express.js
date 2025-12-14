@@ -1,4 +1,4 @@
-const mechanicService = require("../services/MechanicService");
+const mechanicService = require("../services/mechanicService");
 
 exports.createProfile = async (req, res) => {
     try {
@@ -20,7 +20,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const result = await mechanicService.createMechanicProfile(req.user.id, req.body);
+        const result = await mechanicService.updateMechanicProfile(req.user.id, req.body);
         res.json({ success: true, profile: result });
     } catch (err) {
         res.status(400).json({ message: err.message });

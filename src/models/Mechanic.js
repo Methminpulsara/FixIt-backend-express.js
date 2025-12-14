@@ -1,27 +1,27 @@
-const mongoose = require("mongoose");
+    const mongoose = require("mongoose");
 
-const Mechanic = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    const Mechanic = new mongoose.Schema({
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
-    skills: [String],
-    experience: Number,
+        skills: [String],
+        experience: Number,
 
-    documents: {
-        nic: String,
-        certificate: String,
-        license: String
-    },
+        documents: {
+            nic: String,
+            certificate: String,
+            license: String
+        },
 
-    verificationStatus: {
-        type: String,
-        enum: ["pending", "approved", "rejected"],
-        default: "pending"
-    },
+        verificationStatus: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+            default: "pending"
+        },
 
-    isVerified: {
-        type: Boolean,
-        default: false
-    }
-}, { timestamps: true });
+        isVerified: {
+            type: Boolean,
+            default: false
+        }
+    }, { timestamps: true });
 
-module.exports = mongoose.model("Mechanic", Mechanic);
+    module.exports = mongoose.model("Mechanic", Mechanic);
