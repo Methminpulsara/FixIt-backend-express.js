@@ -1,20 +1,3 @@
-// const jwt =  require("jsonwebtoken");
-
-
-// module.exports = (req , res , next) =>{ 
-
-//     const authHeader = req.headers.authorization;
-
-    
-//     if(!authHeader || !authHeader.startsWith("Bearer")){
-//         return res.status()
-//     }
-
-
-//     const token = authHeader.split(" ")[1];
-
-
-
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
