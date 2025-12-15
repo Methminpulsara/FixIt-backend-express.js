@@ -25,8 +25,6 @@ exports.updateByUserIdAprovedOrReject = (id, data) => {
     );
 };
 
-
-
 // ADMIN – FIND PENDING
 exports.findPending = () => {
     return MechanicProfile.find({ verificationStatus: "pending" })
