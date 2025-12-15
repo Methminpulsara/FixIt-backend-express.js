@@ -19,7 +19,7 @@ module.exports = async (req, res, next) => {
             return res.status(401).json({ message: "User not found" });
         }
 
-        req.user = user;   // 🔥 NOW req.user.type EXISTS
+        req.user = user;  
         next();
 
     } catch (error) {
