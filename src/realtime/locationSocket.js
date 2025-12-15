@@ -1,6 +1,5 @@
 const User = require("../models/User")
 
-
 exports.initLocationSocket = (io) => {
     io.on("connection", (socket) => {
         console.log("Socket connected :", socket.id);
