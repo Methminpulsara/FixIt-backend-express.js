@@ -1,6 +1,10 @@
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
+
 const express = require('express');
 const cors = require('cors');
 const privacy = require('./middleware/privacy');
+
 
 const authRouter = require("./routes/auth/auth");
 const userRoutes = require("./routes/userRoutes");
@@ -19,6 +23,9 @@ app.use("/api/v1", userRoutes);
 app.use("/api/v1/mechanic/profile" , mechaniRoutes);
 app.use("/api/v1/admin", adminRouters)
 app.use("/api/v1/garage" , garageRoutes)
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 app.get("/", (req, res) => res.send("works"));
 
