@@ -8,9 +8,11 @@ exports.getByUserId = (userId) => {
 
 // update by user id
 exports.updateByUserId = (userId, data) => {
+  // new : true  ==> Update crmu ek return krnn 
   return MechanicProfile.findOneAndUpdate({ userId }, data, { new: true });
 };
 
+//  Admin Approve/Reject
 exports.updateByUserIdAprovedOrReject = (id, data) => {
   return MechanicProfile.findByIdAndUpdate(id, data, { new: true });
 };
