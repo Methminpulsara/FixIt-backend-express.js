@@ -13,7 +13,11 @@ const GarageSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
-    }
+    },
+    isAvailable: {
+        type: Boolean,
+        default: true // මුලින්ම Job එකක නිරත නොවන බව සලකයි.
+    },
 }, { timestamps: true });
 // Location index එක User Schema එකේ තිබෙන නිසා මෙහි අනවශ්‍යයි.
 module.exports = mongoose.model("Garage", GarageSchema);

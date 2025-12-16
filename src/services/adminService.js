@@ -16,12 +16,10 @@ exports.approveMechanic = async (id) => {
         throw new Error("Mechanic profile not found.");
     }
 
-    await User.findByIdAndUpdate(updatedMechanic.userId, { isVerified: true }); 
-    
     return updatedMechanic;
 };
+
 exports.rejectMechanic = async (id) => {
-    // 1. Mechanic Profile එක Update කිරීම
     const updatedMechanic = await mechanicRepository.updateVerificationStatus(id, {
         verificationStatus: "rejected",
         isVerified: false
@@ -30,7 +28,6 @@ exports.rejectMechanic = async (id) => {
     if (!updatedMechanic) {
         throw new Error("Mechanic profile not found.");
     }
-    await User.findByIdAndUpdate(updatedMechanic.userId, { isVerified: false });
     return updatedMechanic;
 };
 
@@ -44,7 +41,6 @@ exports.approveGarage = async (garageId) => {
         if (!updatedGarage) {
         throw new Error("Mechanic profile not found.");
     }
-    await User.findByIdAndUpdate(updatedGarage.userId, { isVerified: true });
     return updatedGarage;
 };
 
@@ -54,6 +50,5 @@ exports.rejectGarage = async (garageId) => {
      if (!updatedGarage) {
         throw new Error("Mechanic profile not found.");
     }
-    await User.findByIdAndUpdate(updatedGarage.userId, { isVerified: false }); 
     return updatedGarage;
 };

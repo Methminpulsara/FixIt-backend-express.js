@@ -21,7 +21,11 @@
         isVerified: {
             type: Boolean,
             default: false
-        }
+        },
+        isAvailable: {
+        type: Boolean,
+        default: true 
+    },
     }, { timestamps: true });
 
     module.exports = mongoose.model("Mechanic", Mechanic);
