@@ -2,37 +2,37 @@ const adminService = require('../services/adminService');
 
 // --- MECHANIC FUNCTIONS ---
 
-// 1. Pending Mechanics ලබා ගැනීම
+// Pending Mechanics 
 exports.getPendingMechanics = async (req, res) => {
     try {
         const result = await adminService.findPending();
         res.json(result);
     } catch (error) {
-        // 💡 Better Error Handling: Service එකෙන් එන message එක යැවීම
+       
         res.status(400).json({ message: error.message || "Cannot get pending mechanics" });
     }
 };
 
-// 2. Mechanic Approve කිරීම
+// Mechanic Approve 
 exports.approveMechanics = async (req, res) => {
     try {
         const result = await adminService.approveMechanic(req.params.id);
         if (!result) return res.status(404).json({ message: "Mechanic profile not found" });
         res.json({ success: true, mechanic: result });
     } catch (error) {
-        // 💡 Better Error Handling: Service එකෙන් එන message එක යැවීම
+       
         res.status(400).json({ message: error.message || "Cannot approve mechanic." });
     }
 };
 
-// 3. Mechanic Reject කිරීම
+// Mechanic Reject 
 exports.rejectMechanics = async (req, res) => {
     try {
         const result = await adminService.rejectMechanic(req.params.id);
         if (!result) return res.status(404).json({ message: "Mechanic profile not found" });
         res.json({ success: true, mechanic: result });
     } catch (error) {
-        // 💡 Better Error Handling: Service එකෙන් එන message එක යැවීම
+    
         res.status(400).json({ message: error.message || "Cannot reject mechanic." });
     }
 };
@@ -40,7 +40,7 @@ exports.rejectMechanics = async (req, res) => {
 
 // --- GARAGE FUNCTIONS (නවතම එකතු කිරීම) ---
 
-// 4. Pending Garages ලබා ගැනීම
+// Pending Garages ලබා ගැනීම
 exports.getPendingGarages = async (req, res) => {
     try {
         const result = await adminService.findPendingGarages();

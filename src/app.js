@@ -6,6 +6,7 @@ const authRouter = require("./routes/auth/auth");
 const userRoutes = require("./routes/userRoutes");
 const mechaniRoutes = require("./routes/mechanicRoutes")
 const adminRouters = require("./routes/adminRoutes")
+const garageRoutes = require('./routes/garageRoutes')
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/mechanic/profile" , mechaniRoutes);
 app.use("/api/v1/admin", adminRouters)
+app.use("/api/v1/garage" , garageRoutes)
 
 app.get("/", (req, res) => res.send("works"));
 
