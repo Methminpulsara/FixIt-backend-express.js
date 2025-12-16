@@ -1,16 +1,19 @@
-const GarageProfileSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  garageName: String,
-  address: String,
-  documents: {
-    brCertificate: String,
-    license: String,
-  },
-  workerCount: Number,
-  servicesOffered: [String],
-  verificationStatus: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending",
-  },
-});
+const mongoose = require('mongoose')
+const GarageSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    name: { type: String, required: true },
+    address: String,
+    services: [String], // e.g., ["Tire Repair", "Battery Change"]
+    photos: [String],
+    verificationStatus: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        default: "pending"
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true });
+// Location index එක User Schema එකේ තිබෙන නිසා මෙහි අනවශ්‍යයි.
+module.exports = mongoose.model("Garage", GarageSchema);

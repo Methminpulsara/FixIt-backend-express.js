@@ -13,7 +13,7 @@ exports.updateByUserId = (userId, data) => {
 };
 
 //  Admin Approve/Reject
-exports.updateByUserIdAprovedOrReject = (id, data) => {
+exports.updateVerificationStatus = (id, data) => {
   return MechanicProfile.findByIdAndUpdate(id, data, { new: true });
 };
 

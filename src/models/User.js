@@ -24,7 +24,11 @@ const UserSchema = new mongoose.Schema({
         showProfile: { type: Boolean, default: true },
         showPhone: { type: Boolean, default: false },
         showLocation: { type: Boolean, default: false }
-    }
+    },
+    isVerified: { 
+        type: Boolean,
+        default: false 
+    },
 }, { timestamps: true });
 
 UserSchema.index({ location: "2dsphere" });
