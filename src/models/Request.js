@@ -15,14 +15,12 @@ const RequestSchema = new mongoose.Schema({
     providerId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
-        required:true
     },
 
     // Request type
-    requetsType:{
+    requestType:{
         type:String, 
         enum:["mechanic", "garage"],
-        required:true
     },
 
     // issue and vehicle details 

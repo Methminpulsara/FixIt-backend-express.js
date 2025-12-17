@@ -6,12 +6,18 @@ exports.create = (data) =>{
 
 exports.findById = (id) =>{
     return Request.findById(id)
-    .populate("customerId" , 'displayName' , "phone")
-    .populate("providerdId" , 'displayName' , "phone")
+    .populate("customerId" , 'displayName phone')
+    .populate("providerId" , 'displayName phone')
 
 };
 
 
 exports.updateById =(id)=>{
     return Request.findByIdAndUpdate(id , data, {new :true});
+};
+
+exports.find = (query) => {
+    return Request.find(query)
+        .populate('customerId', 'displayName phone')
+        .populate('providerId', 'displayName phone');
 };

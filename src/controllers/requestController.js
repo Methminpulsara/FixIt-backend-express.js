@@ -3,28 +3,72 @@ const requestService = require('../services/requestService')
 
 
 // customer => create service request 
-exports.createRequest = async(req, res) => {
+exports.createRequest = async (req, res) => {
+    try {
+        if (req.user.type !== "customer") {
+             return res.status(403).json({ message: "Only customers can create requests." });
+        }
+        
+        
+        const { lng, lat, requestType, issueDescription } = req.body;
+        if (!lng || !lat || !requestType || !issueDescription) {
+            return res.status(400).json({ message: "Missing required request details (location, type, description)." });
+        }
+
+        const result = await requestService.createServiceRequest(req.user.id, req.body);
+        res.status(201).json({ success: true, request: result });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+// provide accept request
+exports.acceptRequest = async (req, res) => {
 
     try {
-        if(req.user,type !== "customer"){
-            return res.status(403).json({message: "Only customers can create request"})
+        const providerType = req.user.type;
+        if (providerType !== "mechanic" && providerType !== "garage") {
+            return res.status(403).json({ message: "Access denied. Only service providers can accept requests." });
         }
 
-        // if have reqired fileds in bod 
-        const {lng , lat , requestType , issueDescription  } = req.body;
-        if(!lng || !lat || !requestType  || !issueDescription){
-            res.status(400).json({message: "Missing required details"});
-        }
+        const requestId = req.params.id;
+        const providerId = req.user.id;
 
-        const result = await requestService.createServiceRequest(req.user.id , req.body)
-        res.status(201).json({success:true , result:result})  
-    } catch (error) {
-        res.status(400).json({messgae:error.messgae})
-        
+        const result = await requestService.acceptRequest(requestId , providerId, providerType)
+        res.json({success: true , result: result})
+    }catch(error){
+        res.status(400).json({message:error.message})
     }
-
+    
 }
 
-exports.createRequest = async(req, res) => {
-    
+
+exports.completeRequest = async (req, res) => {
+    try {
+        const providerType = req.user.type; 
+        if (providerType !== "mechanic" && providerType !== "garage") {
+             return res.status(403).json({ message: "Access denied." });
+        }
+
+        const requestId = req.params.id;
+        const providerId = req.user.id; 
+        
+        const result = await requestService.completeServiceRequest(requestId, providerId);
+        
+        res.json({ success: true, request: result });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+}
+
+exports.getMyRequests = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const userType = req.user.type;
+        
+        const requests = await requestService.getRequestsByUserId(userId, userType);
+        res.json({ success: true, requests });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 }

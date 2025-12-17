@@ -25,7 +25,7 @@ exports.createServiceRequest = async (customerId , data) =>{
         vehicleDetails:  data.vehicleDetails,
         location:{
             type: "Point",
-            coordinates : [data.lan , data.lat]
+            coordinates : [data.lng , data.lat]
         }
     };
 
@@ -88,3 +88,22 @@ exports.completeServiceRequest = async (requestId , providerId) =>{
 
     return updateRequest;
 }
+
+
+// for customer get history
+exports.getRequestsByUserId = async (userId, userType) => {
+    let query = {};
+
+    if (userType === 'customer') {
+       
+        query = { customerId: userId };
+    } else if (userType === 'mechanic' || userType === 'garage') {
+      
+        query = { providerId: userId };
+    } else {
+   
+        return [];
+    }
+
+    return await requestRepository.find(query); 
+};
