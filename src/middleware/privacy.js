@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
+
 module.exports = async (req, res, next) => {
     try {
         const header = req.headers.authorization || "";
@@ -10,6 +11,7 @@ module.exports = async (req, res, next) => {
             req.viewer = null;
             return next();
         }
+
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id).select("-password");
