@@ -11,14 +11,9 @@ router.get('/get/history' , requestController.getMyRequests)
 
 // customer create request
 router.post('/', requireRole("customer") , requestController.createRequest);
-
-
 router.post('/:id/accept', requireRole(["mechanic","garage"]) , requestController.acceptRequest);
 
-
-
 router.post('/:id/complete', requireRole(["mechanic" , "garage"]) , requestController.completeRequest);
-
 
 module.exports = router;
 
