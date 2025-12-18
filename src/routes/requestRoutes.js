@@ -20,8 +20,6 @@ router.post('/:id/accept', requireRole(["mechanic","garage"]) , requestControlle
 router.post('/:id/complete', requireRole(["mechanic" , "garage"]) , requestController.completeRequest);
 
 
-
-
 module.exports = router;
 
 
