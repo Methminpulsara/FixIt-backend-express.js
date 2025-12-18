@@ -62,7 +62,6 @@ exports.acceptRequest =  async (requestId , providerId , requestType ) =>{
 
     return updateRequest;
 }
-
 // finish request  
 exports.completeServiceRequest = async (requestId , providerId) =>{
 
