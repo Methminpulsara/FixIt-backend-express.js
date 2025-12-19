@@ -11,7 +11,7 @@ exports.findById = (id) =>{
 
 };
 
-exports.updateById =(id)=>{
+exports.updateById =(id, data)=>{
     return Request.findByIdAndUpdate(id , data, {new :true});
 };
 

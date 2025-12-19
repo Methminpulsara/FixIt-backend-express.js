@@ -48,6 +48,9 @@ exports.acceptRequest =  async (requestId , providerId , requestType ) =>{
     if(request.status !== "pending" || request.providerId){
         throw new Error ("This request is no longer available.")
     }
+    if(request.requestType !== requestType){
+          throw new Error (`This request is no longer available For you this is for ${request.requestType}}`)
+    }
 
 
     // Request ek lock krnn
@@ -65,15 +68,15 @@ exports.acceptRequest =  async (requestId , providerId , requestType ) =>{
 // finish request  
 exports.completeServiceRequest = async (requestId , providerId) =>{
 
-    const request = requestRepository.findById(requestId);
+    const request = await requestRepository.findById(requestId);
 
     if(!request){
         throw new Error("Service Request not found.")
     }
 
     // chech provider id match to service provider id 
-    if(request.providerId.toString() !== providerId.toString()){
-        throw new Eroor("Tou are not authorized to complete this request")
+    if(request.providerId._id.toString() !== providerId.toString()){
+        throw new Error("You are not authorized to complete this request")
     }
 
     // update request
