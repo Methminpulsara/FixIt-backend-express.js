@@ -1,4 +1,5 @@
 const MechanicProfile = require("../models/Mechanic");
+const User = require('../models/User')
 
 exports.createProfile = (data) => MechanicProfile.create(data);
 
@@ -24,3 +25,19 @@ exports.findPending = () => {
     "-password"
   );
 };
+
+//find available machanics near to customer 
+exports.findNearMechanics = (lng, lat , maxDistance) =>{
+  return User.find({
+    type:"mechanic",
+    isVerified:true,
+
+    // using 2dphere
+    location:{
+      $near:{
+        $geometry: {type : "Point" , coordinates:[lng, lat]},
+        $maxDistance: maxDistance * 1000 
+      }
+    }
+  })
+}
