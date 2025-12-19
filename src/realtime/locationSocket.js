@@ -8,7 +8,8 @@ exports.initLocationSocket = (io) => {
         console.log("✅ Socket connected:", socket.id);
 
         // 1. User කෙනෙක් connect වුණු ගමන් ඔහුගේ UserId එක socket එකට register කිරීම
-        socket.on("register", (userId) => {
+        socket.on("", (userId) => {
+            console.log("Register event received for ID:", userId);
             socket.userId = userId;
             onlineUsers.set(userId, socket.id);
             console.log(`User registered: ${userId} with socket: ${socket.id}`);

@@ -33,7 +33,7 @@ exports.createServiceRequest = async (customerId , data  , io) =>{
 
 
 
-    const newRequest = requestRepository.create(requestData)
+    const newRequest = await requestRepository.create(requestData)
 
 
     // find near mechanics in 5KM

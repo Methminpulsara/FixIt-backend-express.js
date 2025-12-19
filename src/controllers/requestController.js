@@ -8,12 +8,13 @@ exports.createRequest = async (req, res) => {
         if (req.user.type !== "customer") {
              return res.status(403).json({ message: "Only customers can create requests." });
         }
+        const io = req.app.get("socketio");
         
         const { lng, lat, requestType, issueDescription } = req.body;
         if (!lng || !lat || !requestType || !issueDescription) {
             return res.status(400).json({ message: "Missing required request details (location, type, description)." });
         }
-        const result = await requestService.createServiceRequest(req.user.id, req.body);
+        const result = await requestService.createServiceRequest(req.user.id, req.body, io);
         res.status(201).json({ success: true, request: result });
     } catch (err) {
         res.status(400).json({ message: err.message });
