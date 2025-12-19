@@ -9,12 +9,10 @@ exports.createRequest = async (req, res) => {
              return res.status(403).json({ message: "Only customers can create requests." });
         }
         
-        
         const { lng, lat, requestType, issueDescription } = req.body;
         if (!lng || !lat || !requestType || !issueDescription) {
             return res.status(400).json({ message: "Missing required request details (location, type, description)." });
         }
-
         const result = await requestService.createServiceRequest(req.user.id, req.body);
         res.status(201).json({ success: true, request: result });
     } catch (err) {
