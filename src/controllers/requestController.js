@@ -50,8 +50,10 @@ exports.completeRequest = async (req, res) => {
 
         const requestId = req.params.id;
         const providerId = req.user.id; 
+
+        const io= req.app.get("socketio")
         
-        const result = await requestService.completeServiceRequest(requestId, providerId);
+        const result = await requestService.completeServiceRequest(requestId, providerId, io);
         
         res.json({ success: true, request: result });
     } catch (err) {

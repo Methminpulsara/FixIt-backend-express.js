@@ -1,10 +1,12 @@
 const requestRepository = require("../repositories/requestRepository")
 const mechanicRepository = require("../repositories/mechanicRepository")
 const garageRepository = require("../repositories/garageRepository")
+const { getOnlineUsers } = require("../realtime/locationSocket")
+
+
 
 
 // hellper funtion for provider availability 
-
 const toggleProviderAvailability = async(providerId, requestType , isAvailable) => {
 
     if(requestType === "mechanic"){
@@ -16,7 +18,7 @@ const toggleProviderAvailability = async(providerId, requestType , isAvailable) 
 
 
 // create request
-exports.createServiceRequest = async (customerId , data) =>{
+exports.createServiceRequest = async (customerId , data  , io) =>{
 
     const requestData =  {
         customerId: customerId,
@@ -29,8 +31,29 @@ exports.createServiceRequest = async (customerId , data) =>{
         }
     };
 
-    return requestRepository.create(requestData)
 
+
+    const newRequest = requestRepository.create(requestData)
+
+
+    // find near mechanics in 5KM
+    const nearMechanis = await mechanicRepository.findNearMechanics(data.lng, data.lat , 5)
+
+    const onlineUsers = getOnlineUsers();
+    // for send online mechanics send notificatio
+
+    nearMechanis.forEach(mechanic=>{
+        const socketId = onlineUsers.get(mechanic._id.toString());
+        if(socketId){
+            io.to(socketId).emit("new_service_request",{
+                requestId: newRequest._id,
+                customerName: "A customer",
+                issue: data.issueDescription,
+                distance: "Nerarby"
+            })
+        }
+    })
+    return newRequest;
 }
 
 
@@ -109,3 +132,6 @@ exports.getRequestsByUserId = async (userId, userType) => {
 
     return await requestRepository.find(query); 
 };
+
+
+
