@@ -41,7 +41,7 @@ exports.createServiceRequest = async (customerId , data  , io) =>{
     const nearProviders = await providerRepository.findNearProviders(
         data.lng, 
         data.lat , 
-        500,
+        5,
         data.requestType
     )
     console.log(`🔍 Nearby ${data.requestType}s Found:`, nearProviders.length);
