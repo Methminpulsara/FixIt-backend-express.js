@@ -1,6 +1,7 @@
 const requestRepository = require("../repositories/requestRepository")
 const mechanicRepository = require("../repositories/mechanicRepository")
 const garageRepository = require("../repositories/garageRepository")
+const providerRepository = require('../repositories/providerRepository')
 const { getOnlineUsers } = require("../realtime/locationSocket")
 
 
@@ -37,23 +38,28 @@ exports.createServiceRequest = async (customerId , data  , io) =>{
 
 
     // find near mechanics in 5KM
-    const nearMechanis = await mechanicRepository.findNearMechanics(data.lng, data.lat , 500)
-    console.log("🔍 Nearby Mechanics Found:", nearMechanis.length); // මෙතැන බලන්න 0 ද කියලා
-
+    const nearProviders = await providerRepository.findNearProviders(
+        data.lng, 
+        data.lat , 
+        500,
+        data.requestType
+    )
+    console.log(`🔍 Nearby ${data.requestType}s Found:`, nearProviders.length);
 
     const onlineUsers = getOnlineUsers();
     console.log("📱 Currently Online Users in Map:", Array.from(onlineUsers.keys()));
     // for send online mechanics send notificatio
-    nearMechanis.forEach(mechanic=>{
-        const socketId = onlineUsers.get(mechanic._id.toString());
-        console.log(`📡 Sending to: ${mechanic._id} | SocketID: ${socketId}`); 
+    nearProviders.forEach(provider=>{
+        const socketId = onlineUsers.get(provider._id.toString());
+        console.log(`📡 Sending to: ${provider._id} | SocketID: ${socketId}`); 
 
         if(socketId){
             io.to(socketId).emit("new_service_request",{
                 requestId: newRequest._id,
                 customerName: "A customer",
                 issue: data.issueDescription,
-                distance: "Nerarby"
+                distance: "Nerarby",
+                requestType:data.requestType
             })
         }
     })
