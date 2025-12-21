@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: { origin: "*" }
 });
-app.set("socketio", io); // <--- මෙය එකතු කරන්න
+app.set("socketio", io); 
 
 // Initialize socket module
 initLocationSocket(io);

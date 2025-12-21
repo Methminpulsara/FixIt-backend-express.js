@@ -32,8 +32,9 @@ exports.acceptRequest = async (req, res) => {
 
         const requestId = req.params.id;
         const providerId = req.user.id;
+        const io = req.app.get("socketio");
 
-        const result = await requestService.acceptRequest(requestId , providerId, providerType)
+        const result = await requestService.acceptRequest(requestId , providerId, providerType, io)
         res.json({success: true , result: result})
     }catch(error){
         res.status(400).json({message:error.message})

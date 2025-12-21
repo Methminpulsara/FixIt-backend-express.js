@@ -37,13 +37,17 @@ exports.createServiceRequest = async (customerId , data  , io) =>{
 
 
     // find near mechanics in 5KM
-    const nearMechanis = await mechanicRepository.findNearMechanics(data.lng, data.lat , 5)
+    const nearMechanis = await mechanicRepository.findNearMechanics(data.lng, data.lat , 500)
+    console.log("🔍 Nearby Mechanics Found:", nearMechanis.length); // මෙතැන බලන්න 0 ද කියලා
+
 
     const onlineUsers = getOnlineUsers();
+    console.log("📱 Currently Online Users in Map:", Array.from(onlineUsers.keys()));
     // for send online mechanics send notificatio
-
     nearMechanis.forEach(mechanic=>{
         const socketId = onlineUsers.get(mechanic._id.toString());
+        console.log(`📡 Sending to: ${mechanic._id} | SocketID: ${socketId}`); 
+
         if(socketId){
             io.to(socketId).emit("new_service_request",{
                 requestId: newRequest._id,
@@ -58,8 +62,9 @@ exports.createServiceRequest = async (customerId , data  , io) =>{
 
 
 // Accept Request
-
-exports.acceptRequest =  async (requestId , providerId , requestType ) =>{
+exports.acceptRequest =  async (requestId , providerId , requestType , io) =>{
+    console.log(`📩 Attempting to accept request: ${requestId} by provider: ${providerId}`);
+    
     const request = await requestRepository.findById(requestId);
 
 
@@ -82,15 +87,35 @@ exports.acceptRequest =  async (requestId , providerId , requestType ) =>{
         providerId: providerId,
         acceptedAt : new Date()
     });
+    console.log(`✅ Request ${requestId} status updated to: ACCEPTED`);
 
     // accept kalt passe anith provider request reject krnn 
     await toggleProviderAvailability(providerId , requestType, false);
 
+
+    // Real time notification to CUSTOMER
+    const onlineUsers = getOnlineUsers();
+    const customerSocketId = onlineUsers.get(updateRequest.customerId.toString())
+
+    if(customerSocketId){
+        console.log(`📡 Notifying Customer ${updateRequest.customerId} via socket: ${customerSocketId}`);    
+        io.to(customerSocketId).emit("request_accepted",{
+            requestId: requestId,
+            providerId:providerId,
+            message: "A mechanic has accepted your request and is starting the job!"        })
+    }else{
+        console.log(`⚠️ Customer ${updateRequest.customerId} is offline. Notification not sent.`);
+    }   
+
+
     return updateRequest;
 }
-// finish request  
-exports.completeServiceRequest = async (requestId , providerId) =>{
 
+
+
+// finish request  
+exports.completeServiceRequest = async (requestId , providerId,io) =>{
+console.log(`🏁 Attempting to complete request: ${requestId}`);
     const request = await requestRepository.findById(requestId);
 
     if(!request){
@@ -107,9 +132,21 @@ exports.completeServiceRequest = async (requestId , providerId) =>{
         status: "completed",
         completedAt : new Date()
     })
+    console.log(`✅ Request ${requestId} status updated to: COMPLETED`);
 
     // provider availability again true 
     await toggleProviderAvailability(providerId ,request.requestType, true)
+
+    const onlineUsers = getOnlineUsers();
+    const customerSocketId = onlineUsers.get(updateRequest.customerId.toString());
+
+    if (customerSocketId) {
+        io.to(customerSocketId).emit("request_completed", {
+            requestId: requestId,
+            message: "The service is completed. Please rate your experience!"
+        });
+        console.log("🚀 Completion notification sent to customer.");
+    }
 
     return updateRequest;
 }
