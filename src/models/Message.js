@@ -17,10 +17,11 @@ const MessageSchema = new mongoose.Schema({
         ref : "User",
         required : true
     },
-    message:{
-        type : String,
-        required : true
-    },
+  messageType: { 
+    type: String, 
+    enum: ['text', 'image'], 
+    default: 'text' 
+},
     isReadL:{
         type:Boolean,
         default:false
