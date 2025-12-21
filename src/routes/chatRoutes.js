@@ -1,8 +1,10 @@
 const express = require('express')
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-const { getChatHistory } = require('../controllers/chatController');
+const chatControlleer = require('../controllers/chatController');
 
-router.get('/requestId', authMiddleware , getChatHistory )
+router.get('/:requestId',authMiddleware,  chatControlleer.getChatHistory )
+router.get('/',chatControlleer.print)
+
 
 module.exports = router;

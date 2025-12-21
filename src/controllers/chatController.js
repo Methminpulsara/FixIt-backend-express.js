@@ -2,7 +2,7 @@ const chatService = require('../services/chatService')
 
 exports.getChatHistory = async (req, res) => {
     try {
-        const requestId = req.params.requestId;
+        const { requestId } = req.params;
 
         if (!requestId) {
             return res.status(400).json({ message: "Request ID එක අවශ්‍යයි." });
@@ -18,4 +18,8 @@ exports.getChatHistory = async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
+};
+
+exports.print = (req, res) => {
+    res.send("WADA");
 };

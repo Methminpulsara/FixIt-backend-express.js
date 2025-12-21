@@ -1,4 +1,3 @@
-const { request } = require('express')
 const chatRepository = require('../repositories/chatRepository')
 
 exports.getChatHistory = async(requestId)=>{
