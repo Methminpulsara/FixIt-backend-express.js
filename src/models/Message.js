@@ -27,4 +27,6 @@ const MessageSchema = new mongoose.Schema({
     }
 },{timestamps: true});
 
+MessageSchema.index({ requestId: 1, createdAt: 1 }); // මේකෙන් Query එක ගොඩක් වේගවත් වෙනවා
+
 module.exports = mongoose.model("Message", MessageSchema)

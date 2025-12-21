@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const registerChatHandler = require('./chatHandler')
 
 // දැනට online ඉන්න අයගේ userId සහ socketId store කිරීමට
 const onlineUsers = new Map();
@@ -45,6 +46,11 @@ exports.initLocationSocket = (io) => {
                 console.error("Location update error:", error.message);
             }
         });
+
+
+        // CHAt HANDELER 
+        registerChatHandler(io,socket, onlineUsers);
+
 
         // 3. Socket එක disconnect වූ විට onlineUsers ලැයිස්තුවෙන් ඉවත් කිරීම
         socket.on("disconnect", () => {

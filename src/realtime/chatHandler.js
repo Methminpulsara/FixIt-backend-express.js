@@ -1,7 +1,6 @@
 const Messgae = require('../models/Message')
-const {getOnlineUsers} = require("./locationSocketa")
 
-module.exports = (io,socket)=>{
+module.exports = (io,socket, onlineUsers)=>{
 
     const sendMessage = async (data) =>{
         const {requestId , receiverId , message} = data
@@ -22,8 +21,6 @@ module.exports = (io,socket)=>{
             await newMessage.save();
 
             // check receiver online or not 
-
-            const onlineUsers =getOnlineUsers();
             const receiverSocketId = onlineUsers.get(receiverId);
 
             if(receiverSocketId){
