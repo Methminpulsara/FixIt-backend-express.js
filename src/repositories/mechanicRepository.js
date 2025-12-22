@@ -1,19 +1,25 @@
 const MechanicProfile = require("../models/Mechanic");
-const User = require('../models/User')
+const User = require('../models/User');
 
 exports.createProfile = (data) => MechanicProfile.create(data);
 
+// 💡 මෙතැනදී .populate එක එකතු කළා. එවිට User model එකේ තියෙන විස්තරත් ලැබෙනවා.
 exports.getByUserId = (userId) => {
-  return MechanicProfile.findOne({ userId });
+  return MechanicProfile.findOne({ userId }).populate(
+    "userId", 
+    "displayName email phone location"
+  );
 };
 
 // update by user id
 exports.updateByUserId = (userId, data) => {
-  // new : true  ==> Update crmu ek return krnn 
-  return MechanicProfile.findOneAndUpdate({ userId }, data, { new: true });
+  return MechanicProfile.findOneAndUpdate({ userId }, data, { new: true }).populate(
+    "userId", 
+    "displayName email phone location"
+  );
 };
 
-//  Admin Approve/Reject
+// Admin Approve/Reject
 exports.updateVerificationStatus = (id, data) => {
   return MechanicProfile.findByIdAndUpdate(id, data, { new: true });
 };
@@ -25,19 +31,3 @@ exports.findPending = () => {
     "-password"
   );
 };
-
-//find available machanics near to customer 
-exports.findNearMechanics = (lng, lat , maxDistance) =>{
-  return User.find({
-    type:"mechanic",
-    isVerified:true,
-
-    // using 2dphere
-    location:{
-      $near:{
-        $geometry: {type : "Point" , coordinates:[lng, lat]},
-        $maxDistance: maxDistance * 1000 
-      }
-    }
-  })
-}

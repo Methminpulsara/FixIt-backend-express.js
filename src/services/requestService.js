@@ -68,55 +68,67 @@ exports.createServiceRequest = async (customerId , data  , io) =>{
 
 
 // Accept Request
-exports.acceptRequest =  async (requestId , providerId , requestType , io) =>{
+exports.acceptRequest = async (requestId, providerId, requestType, io) => {
     console.log(`📩 Attempting to accept request: ${requestId} by provider: ${providerId}`);
     
+    // 1. මුලින්ම පරීක්ෂා කරන්න මේ Provider (Mechanic/Garage) ඇත්තටම Approved ද කියලා
+    let providerProfile;
+    if (requestType === "mechanic") {
+        providerProfile = await mechanicRepository.getByUserId(providerId);
+    } else if (requestType === "garage") {
+        providerProfile = await garageRepository.findByUserId(providerId);
+    }
+
+    // 🛡️ Validation: Profile එකක් නැත්නම් හෝ Admin Approve කරලා නැත්නම් Error එකක් යවනවා
+    if (!providerProfile || providerProfile.verificationStatus !== "approved") {
+        throw new Error("Your account is pending approval. You cannot accept requests yet.");
+    }
+
+    // 2. Request එක තියෙනවද බලන්න
     const request = await requestRepository.findById(requestId);
-
-
-    if(!request){
-        throw new Error ("Service Request not found.");
+    if (!request) {
+        throw new Error("Service Request not found.");
     }
 
-    // requert ekkent godk yaddi reject krnn
-    if(request.status !== "pending" || request.providerId){
-        throw new Error ("This request is no longer available.")
-    }
-    if(request.requestType !== requestType){
-          throw new Error (`This request is no longer available For you this is for ${request.requestType}}`)
+    // 3. Request එක තවමත් Pending ද කියලා බලන්න (වෙන අයෙක් අරන් නැති බව තහවුරු කරන්න)
+    if (request.status !== "pending" || request.providerId) {
+        throw new Error("This request is no longer available.");
     }
 
+    // 4. Request Type එක ගැලපෙනවද බලන්න (Mechanic ට Garage requests බැරි වෙන්න)
+    if (request.requestType !== requestType) {
+        throw new Error(`This request is only for ${request.requestType}s.`);
+    }
 
-    // Request ek lock krnn
-    const updateRequest = await requestRepository.updateById(requestId,{
+    // ✅ සියල්ල නිවැරදි නම් Request එක Update කරන්න
+    const updateRequest = await requestRepository.updateById(requestId, {
         status: "accepted",
         providerId: providerId,
-        acceptedAt : new Date()
+        acceptedAt: new Date()
     });
+
     console.log(`✅ Request ${requestId} status updated to: ACCEPTED`);
 
-    // accept kalt passe anith provider request reject krnn 
-    await toggleProviderAvailability(providerId , requestType, false);
+    // 5. Provider ව 'Not Available' කරන්න (වැඩේ ඉවර වෙනකම් තව Request එන්නේ නැති වෙන්න)
+    await toggleProviderAvailability(providerId, requestType, false);
 
-
-    // Real time notification to CUSTOMER
+    // 6. Real-time notification to CUSTOMER
     const onlineUsers = getOnlineUsers();
-    const customerSocketId = onlineUsers.get(updateRequest.customerId.toString())
+    const customerSocketId = onlineUsers.get(updateRequest.customerId.toString());
 
-    if(customerSocketId){
-        console.log(`📡 Notifying Customer ${updateRequest.customerId} via socket: ${customerSocketId}`);    
-        io.to(customerSocketId).emit("request_accepted",{
+    if (customerSocketId) {
+        console.log(`📡 Notifying Customer ${updateRequest.customerId} via socket: ${customerSocketId}`);
+        io.to(customerSocketId).emit("request_accepted", {
             requestId: requestId,
-            providerId:providerId,
-            message: "A mechanic has accepted your request and is starting the job!"        })
-    }else{
-        console.log(`⚠️ Customer ${updateRequest.customerId} is offline. Notification not sent.`);
-    }   
-
+            providerId: providerId,
+            message: "A provider has accepted your request and is starting the job!"
+        });
+    } else {
+        console.log(`⚠️ Customer ${updateRequest.customerId} is offline.`);
+    }
 
     return updateRequest;
-}
-
+};
 
 
 // finish request  

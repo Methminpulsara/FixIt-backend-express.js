@@ -27,9 +27,8 @@
 // };
 
 const mechanicRepository = require("../repositories/mechanicRepository");
-
+const reviewRepository = require('../repositories/reviewRepository')
 // --- Mechanic Profile Management ---
-
 exports.createMechanicProfile = async (userId, body) => { 
 
     const existingProfile = await mechanicRepository.getByUserId(userId);
@@ -47,9 +46,20 @@ exports.createMechanicProfile = async (userId, body) => {
 };
 
 exports.getMechanicProfile = async (userId) => { 
-    return await mechanicRepository.getByUserId(userId);  
-};
+    const profile = await mechanicRepository.getByUserId(userId);
+    if (!profile) return null;
 
+    // Rating stats සහ අවසන් reviews ලබා ගැනීම
+    const ratingStats = await reviewRepository.getAverageRating(userId);
+    const latestReviews = await reviewRepository.getLatestReviews(userId, 3);
+
+    return {
+        ...profile._doc, // MongoDB Document එකේ දත්ත
+        averageRating: Math.round(ratingStats.averageRating * 10) / 10,
+        totalReviews: ratingStats.count,
+        recentFeedback: latestReviews
+    };
+};
 exports.updateMechanicProfile = async (userId, body) => { 
     // Update කිරීමේදී Verification Status එක Reset කිරීම
     const updatedData = {

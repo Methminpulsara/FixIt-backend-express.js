@@ -1,5 +1,5 @@
 const garageRepository = require('../repositories/garageRepository');
-const User = require('../models/User'); 
+const reviewRepository = require('../repositories/reviewRepository'); 
 
 // 1. Garage Profile එක නිර්මාණය කිරීම
 exports.createGarageProfile = async (userId, data) => {
@@ -22,7 +22,18 @@ exports.createGarageProfile = async (userId, data) => {
 
 // 2. Profile එක ලබා ගැනීම
 exports.getGarageProfile = async (userId) => {
-    return await garageRepository.findByUserId(userId);
+    const profile = await garageRepository.findByUserId(userId);
+    if (!profile) return null;
+
+    const ratingStats = await reviewRepository.getAverageRating(userId);
+    const latestReviews = await reviewRepository.getLatestReviews(userId, 3);
+
+    return {
+        ...profile._doc,
+        averageRating: Math.round(ratingStats.averageRating * 10) / 10,
+        totalReviews: ratingStats.count,
+        recentFeedback: latestReviews
+    };
 };
 
 // 3. Profile එක update කිරීම
