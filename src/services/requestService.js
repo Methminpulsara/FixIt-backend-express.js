@@ -19,53 +19,66 @@ const toggleProviderAvailability = async(providerId, requestType , isAvailable) 
 
 
 // create request
-exports.createServiceRequest = async (customerId , data  , io) =>{
+// create request
+exports.createServiceRequest = async (customerId, data, io) => {
 
-    const requestData =  {
+    const requestData = {
         customerId: customerId,
         requestType: data.requestType,
         issueDescription: data.issueDescription,
-        vehicleDetails:  data.vehicleDetails,
-        location:{
+        vehicleDetails: data.vehicleDetails,
+        location: {
             type: "Point",
-            coordinates : [data.lng , data.lat]
+            coordinates: [data.lng, data.lat]
         }
     };
 
-
-
-    const newRequest = await requestRepository.create(requestData)
-
+    const newRequest = await requestRepository.create(requestData);
 
     // find near mechanics in 5KM
     const nearProviders = await providerRepository.findNearProviders(
-        data.lng, 
-        data.lat , 
+        data.lng,
+        data.lat,
         5,
         data.requestType
-    )
+    );
+    
     console.log(`🔍 Nearby ${data.requestType}s Found:`, nearProviders.length);
 
     const onlineUsers = getOnlineUsers();
     console.log("📱 Currently Online Users in Map:", Array.from(onlineUsers.keys()));
-    // for send online mechanics send notificatio
-    nearProviders.forEach(provider=>{
-        const socketId = onlineUsers.get(provider._id.toString());
-        console.log(`📡 Sending to: ${provider._id} | SocketID: ${socketId}`); 
 
-        if(socketId){
-            io.to(socketId).emit("new_service_request",{
+    // සබැඳිව සිටින mechanics/garages වෙත notification යැවීම
+    nearProviders.forEach(provider => {
+        
+        /** * 💡 මෙතැනයි වැරැද්ද තිබුණේ: 
+         * provider._id කියන්නේ Garage/Mechanic ID එක. 
+         * නමුත් socket එකේ register වෙලා තියෙන්නේ User ID එක.
+         */
+        const targetUserId = provider.userId._id 
+            ? provider.userId._id.toString() 
+            : provider.userId.toString();
+
+        const socketId = onlineUsers.get(targetUserId);
+        
+        console.log(`📡 Attempting to send to User: ${targetUserId} | SocketID: ${socketId}`); 
+
+        if (socketId) {
+            io.to(socketId).emit("new_service_request", {
                 requestId: newRequest._id,
                 customerName: "A customer",
                 issue: data.issueDescription,
-                distance: "Nerarby",
-                requestType:data.requestType
-            })
+                distance: "Nearby",
+                requestType: data.requestType
+            });
+            console.log(`✅ Message emitted to socket: ${socketId}`);
+        } else {
+            console.log(`⚠️ User ${targetUserId} is not online (No SocketID found).`);
         }
-    })
+    });
+
     return newRequest;
 }
-
 
 // Accept Request
 exports.acceptRequest = async (requestId, providerId, requestType, io) => {

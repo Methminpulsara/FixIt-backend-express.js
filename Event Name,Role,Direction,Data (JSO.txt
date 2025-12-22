@@ -1,0 +1,7 @@
+Event Name,Role,Direction,Data (JSON)
+register,User ව Socket එකට සම්බන්ධ කිරීම,Client ➔ Server,"""USER_ID"""
+new_service_request,අලුත් රික්වෙස්ට් එකක් Garage එකට යැවීම,Server ➔ Provider,"{ requestId, customerName, issue... }"
+send_message,චැට් පණිවිඩයක් යැවීම,Client ➔ Server,"{ requestId, receiverId, message }"
+receive_message,පණිවිඩයක් ලැබීම,Server ➔ Receiver,"{ requestId, senderId, message, timestamp }"
+mark_as_read,පණිවිඩ බැලූ බව දැන්වීම,Client ➔ Server,"{ requestId, senderId }"
+messages_seen,පණිවිඩ කියවූ බව තහවුරු කිරීම,Server ➔ Original Sender,"{ requestId, seenBy }"

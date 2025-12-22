@@ -2,6 +2,7 @@
 const Message = require('../models/Message'); // Messgae -> Message ලෙස නිවැරදි කළා
 
 module.exports = (io, socket, onlineUsers) => {
+    console.log("🛠️ Chat Handler attached to socket:", socket.id); // මේක වැටෙනවද බලන්න
 
     // 1. පණිවිඩ යැවීමේ Logic එක
     const sendMessage = async (data) => {
