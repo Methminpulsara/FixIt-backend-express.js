@@ -22,7 +22,7 @@ const MessageSchema = new mongoose.Schema({
     enum: ['text', 'image'], 
     default: 'text' 
 },
-    isReadL:{
+    isRead:{
         type:Boolean,
         default:false
     }
