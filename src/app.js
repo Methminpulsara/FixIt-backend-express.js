@@ -13,6 +13,7 @@ const adminRouters = require("./routes/adminRoutes")
 const garageRoutes = require('./routes/garageRoutes')
 const requestRoutes = require('./routes/requestRoutes')
 const chatRoutes = require('./routes/chatRoutes')
+const reveiewRoutes = require('./routes/reviewRoutes')
 
 
 const app = express();
@@ -28,6 +29,7 @@ app.use("/api/v1/admin", adminRouters)
 app.use("/api/v1/garage" , garageRoutes)
 app.use("/api/v1/request", requestRoutes)
 app.use("/api/v1/chat" , chatRoutes)
+app.use("/api/v1/review" , reveiewRoutes)
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
