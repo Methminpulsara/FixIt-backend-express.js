@@ -15,6 +15,8 @@ router.post('/:id/accept', requireRole(["mechanic","garage"]) , requestControlle
 
 router.post('/:id/complete', requireRole(["mechanic" , "garage"]) , requestController.completeRequest);
 
+//getmechanic status 
+router.get('/provider-stats', authMiddleware, requestController.getProviderStats);
 module.exports = router;
 
 

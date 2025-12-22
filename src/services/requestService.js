@@ -201,5 +201,20 @@ exports.getRequestsByUserId = async (userId, userType) => {
     return await requestRepository.find(query); 
 };
 
+exports.getProviderTodayStats = async (providerId) => {
+    // Repository එක call කිරීම (දෙගොල්ලන්ටම පොදුයි)
+    const todayJobs = await requestRepository.findCompletedJobsByProviderToday(providerId);
+    
+    // මෙතැනදී එක් එක් job එකේ 'price' එක database එකේ තියෙනවා නම් ඒක එකතු කරන්න පුළුවන්.
+    // දැනට අපි totalEarnings ගණනය කරමු.
+    const totalEarnings = todayJobs.reduce((sum, job) => sum + (job.price || 0), 0); 
+
+    return {
+        date: new Date().toLocaleDateString(),
+        completedJobsCount: todayJobs.length,
+        totalEarnings: totalEarnings,
+        jobs: todayJobs
+    };
+};
 
 

@@ -74,3 +74,21 @@ exports.getMyRequests = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 }
+
+exports.getProviderStats = async (req, res) => {
+    try {
+        // req.user.id එකෙන් එන්නේ login වෙලා ඉන්න කෙනාගේ ID එක (User ID)
+        const providerId = req.user.id; 
+        const stats = await requestService.getProviderTodayStats(providerId);
+        
+        res.status(200).json({
+            success: true,
+            data: stats
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
