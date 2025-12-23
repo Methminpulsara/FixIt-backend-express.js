@@ -3,7 +3,7 @@ const mechanicRepository = require("../repositories/mechanicRepository")
 const garageRepository = require("../repositories/garageRepository")
 const providerRepository = require('../repositories/providerRepository')
 const { getOnlineUsers } = require("../realtime/locationSocket")
-
+const userRepository = require('../repositories/userRepository')
 
 
 
@@ -222,5 +222,30 @@ exports.getProviderTodayStats = async (providerId) => {
 
 exports.getNearbyPendingRequests = async (lng, lat, type) => {
     return await requestRepository.findAvailableNearby(lng, lat, 10, type); // 10km ඇතුළත requests
+};
+
+// src/services/requestService.js
+
+exports.updateProviderLiveLocation = async (providerId, lng, lat, io) => {
+    // 1. User ගේ location එක update කරන්න
+    await userRepository.updateByIdLocation(providerId, lng, lat);
+
+    // 2. Repository එක හරහා active request එක හොයන්න
+    // කෙලින්ම Request.findOne කියල දාන්න එපා (import කරල නැති නිසා error එනවා)
+    const activeRequest = await requestRepository.findActiveRequestByProvider(providerId);
+
+    if (activeRequest) {
+        const onlineUsers = getOnlineUsers();
+        const customerSocketId = onlineUsers.get(activeRequest.customerId.toString());
+
+        if (customerSocketId) {
+            io.to(customerSocketId).emit("live_location_update", {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+                requestId: activeRequest._id
+            });
+            console.log(`📡 Live location sent to customer: ${activeRequest.customerId}`);
+        }
+    }
 };
 

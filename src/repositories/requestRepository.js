@@ -50,3 +50,10 @@ exports.findAvailableNearby = (lng, lat, maxDistance, type) => {
         }
     }).populate("customerId", "displayName phone");
 };
+
+exports.findActiveRequestByProvider = (providerId) => {
+    return Request.findOne({
+        providerId: providerId,
+        status: "accepted"
+    });
+};

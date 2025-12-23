@@ -22,6 +22,9 @@ router.post('/:id/complete', requireRole(["mechanic" , "garage"]) , requestContr
 
 //getmechanic status 
 router.get('/provider-stats', authMiddleware, requestController.getProviderStats);
+
+router.post('/update-location', authMiddleware, requestController.updateLocation);
+
 module.exports = router;
 
 

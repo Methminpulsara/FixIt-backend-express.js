@@ -120,3 +120,16 @@ exports.getProviderStats = async (req, res) => {
         });
     }
 };
+
+exports.updateLocation = async (req, res) => {
+    try {
+        const { lng, lat } = req.body;
+        const io = req.app.get("socketio");
+
+        await requestService.updateProviderLiveLocation(req.user.id, lng, lat, io);
+
+        res.status(200).json({ success: true, message: "Location updated" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
