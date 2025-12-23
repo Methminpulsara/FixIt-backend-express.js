@@ -1,63 +1,108 @@
-# 🛠️ On-Demand Mechanic & Garage Finder System (Backend)
+# Emergency Mechanic Backend
 
-ශ්‍රී ලංකාවේ වාහන කාර්මික ශිල්පීන් (Mechanics) සහ ගරාජ් (Garages) ඉතා ඉක්මනින් පාරිභෝගිකයන් වෙත සම්බන්ධ කරන පද්ධතියක Backend කොටස මෙයයි. මෙහි Real-time සන්නිවේදනය සහ භූගෝලීය පිහිටීම (Geolocation) මත පදනම් වූ සේවා සපයයි.
+A backend API for an on-demand mechanic and garage finder system in Sri Lanka. This system connects customers with nearby mechanics and garages using real-time communication and geolocation-based services.
 
-## 🚀 ප්‍රධාන විශේෂාංග (Core Features)
+## Features
 
-* **Geospatial Discovery:** පාරිභෝගිකයාගේ වත්මන් ස්ථානයට (Live Location) ආසන්නතම කාර්මිකයන් සොයා ගැනීම.
-* **Real-time Service Requests:** Socket.io භාවිතයෙන් ක්ෂණිකව සේවා ඉල්ලීම් (Requests) යැවීම සහ ලබා ගැනීම.
-* **Live Chat System:** පාරිභෝගිකයා සහ කාර්මිකයා අතර තත්‍ය කාලීන පණිවිඩ හුවමාරුව (Real-time messaging) සහ 'Seen' status පහසුකම.
-* **Provider Dashboard:** දෛනික ආදායම (Earnings) සහ නිම කළ සේවාවන් පිළිබඳ දත්ත ලබා ගැනීම.
-* **Image Uploads:** Multer භාවිතයෙන් Profile පින්තූර සහ ලේඛන සර්වර් එක වෙත Upload කිරීම.
+- **Geospatial Discovery:** Find the nearest mechanics based on the customer's live location.
+- **Real-time Service Requests:** Send and receive service requests instantly using Socket.io.
+- **Live Chat System:** Real-time messaging between customers and providers with 'seen' status.
+- **Provider Dashboard:** View daily earnings and completed services.
+- **Image Uploads:** Upload profile pictures and documents using Multer.
 
-## 🛠️ තාක්ෂණික මෙවලම් (Tech Stack)
+## Tech Stack
 
-* **Runtime:** Node.js
-* **Framework:** Express.js
-* **Database:** MongoDB (with Mongoose ODM)
-* **Real-time:** Socket.io
-* **File Handling:** Multer
-* **Authentication:** JWT (JSON Web Tokens)
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB (with Mongoose ODM)
+- **Real-time:** Socket.io
+- **File Handling:** Multer
+- **Authentication:** JWT (JSON Web Tokens)
+- **Documentation:** Swagger
 
----
+## Project Structure
 
-## 📂 පද්ධතියේ ව්‍යුහය (Repository Pattern)
+The project follows a repository pattern for better organization:
 
-අප පද්ධතිය වඩාත් ක්‍රමවත් කිරීමට Repository Pattern එක භාවිතා කර ඇත (Async/Await රහිතව Query return කිරීමේ ක්‍රමය):
-1. **Models:** දත්ත සමුදායේ ව්‍යුහය (Schema).
-2. **Repositories:** Database queries පවත්වාගෙන යාම.
-3. **Services:** ව්‍යාපාරික තර්කනය (Business Logic) මෙහෙයවීම.
-4. **Controllers:** HTTP ඉල්ලීම් වලට ප්‍රතිචාර දැක්වීම.
-5. **Realtime (Socket Handlers):** සජීවී සන්නිවේදන කටයුතු.
+- **models/:** Database schemas.
+- **repositories/:** Database query handling.
+- **services/:** Business logic.
+- **controllers/:** HTTP request handling.
+- **routes/:** API route definitions.
+- **middleware/:** Custom middleware for authentication, roles, uploads, etc.
+- **realtime/:** Socket.io handlers for real-time features.
+- **utils/:** Utility functions.
+- **config/:** Configuration files for DB and Swagger.
 
----
+## Installation
 
-## 📡 ප්‍රධාන API Endpoints
+1. Clone the repository.
+2. Install dependencies: `npm install`
+3. Create a `.env` file with the following variables:
+   - `MONGO_URI`: Your MongoDB connection string
+   - `JWT_SECRET`: Secret key for JWT
+   - `PORT`: Server port (default 5000)
+4. Start the server: `npm run dev`
 
-### 👤 පාරිභෝගික (Customer)
-- `GET /api/requests/history` - තමන්ගේ පැරණි සේවා ඉල්ලීම් බැලීමට.
-- `POST /api/users/upload-profile` - Profile පින්තූරය ඇතුළත් කිරීමට.
+## API Endpoints
 
-### 👨‍🔧 සේවා සපයන්නා (Provider)
-- `GET /api/requests/provider-stats` - අද දවසේ ආදායම සහ වැඩ විස්තර බැලීමට.
-- `PUT /api/mechanics/available` - තමන්ගේ සක්‍රීය භාවය (Availability) වෙනස් කිරීමට.
+All endpoints are prefixed with `/api/v1`.
 
-### 💬 චැට් (Chat)
-- `Socket Event: send_message` - පණිවිඩයක් යැවීමට.
-- `Socket Event: mark_as_read` - පණිවිඩය කියවූ බව දැන්වීමට.
+### Authentication
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login user
 
----
+### User Management
+- `GET /me` - Get my profile (authenticated)
+- `PUT /me` - Update my profile (authenticated)
+- `GET /:id` - Get user profile (public, with privacy)
+- `PATCH /me/visibility` - Update visibility settings (authenticated)
+- `PUT /location` - Update location (authenticated)
+- `POST /upload-profile` - Upload profile image (authenticated, multipart)
 
-## ⚙️ පද්ධතිය ස්ථාපනය (Installation)
+### Mechanic Management
+- `POST /mechanic/profile` - Create mechanic profile (mechanic role)
+- `GET /mechanic/profile` - Get mechanic profile (authenticated)
+- `PUT /mechanic/profile` - Update mechanic profile (authenticated)
+- `POST /mechanic/profile/upload-doc` - Upload mechanic documents (authenticated, multipart)
 
-1. මෙම ගබඩාව (Repository) Clone කරගන්න.
-2. අවශ්‍ය Modules ස්ථාපනය කිරීමට `npm install` විධානය ලබා දෙන්න.
-3. `.env` ගොනුවක් සාදා එහි `MONGO_URI`, `PORT`, සහ `JWT_SECRET` ඇතුළත් කරන්න.
-4. සර්වර් එක පණ ගැන්වීමට `npm run dev` විධානය ලබා දෙන්න.
+### Garage Management
+- `POST /garage/profile` - Create garage profile (garage role)
+- `GET /garage/profile` - Get garage profile (authenticated)
+- `PUT /garage/profile` - Update garage profile (authenticated)
+- `POST /garage/upload-photo` - Upload garage photo (garage role, multipart)
+- `DELETE /garage/delete-photo` - Delete garage photo (garage role)
 
----
+### Request Management
+- `GET /request/get/history` - Get my request history (authenticated)
+- `GET /request/nearby` - Get nearby requests (authenticated)
+- `POST /request` - Create a new request (customer role, multipart for image)
+- `POST /request/:id/accept` - Accept a request (mechanic/garage role)
+- `POST /request/:id/complete` - Complete a request (mechanic/garage role)
+- `GET /request/provider-stats` - Get provider stats (authenticated)
+- `POST /request/update-location` - Update location (authenticated)
 
-## 📸 Testing with Postman
+### Chat
+- `GET /chat/:requestId` - Get chat history for a request (authenticated)
+- `GET /chat` - Print chats (for testing?)
 
-* **Real-time Testing:** Postman හි Socket.io window එක භාවිතා කර `register`, `send_message` වැනි events පරීක්ෂා කරන්න.
-* **File Upload:** `form-data` යටතේ `profilePic` යන key එක භාවිතා කර පින්තූරයක් තෝරා එවන්න.
+### Review
+- `POST /review` - Create a review (authenticated)
+
+### Admin
+- `GET /admin/mechanics/pending` - Get pending mechanics (admin)
+- `PUT /admin/mechanics/:id/approve` - Approve mechanic (admin)
+- `PUT /admin/mechanics/:id/reject` - Reject mechanic (admin)
+- `GET /admin/garages/pending` - Get pending garages (admin)
+- `PUT /admin/garages/:id/approve` - Approve garage (admin)
+- `PUT /admin/garages/:id/reject` - Reject garage (admin)
+
+## Testing
+
+- **API Testing:** Use Postman or access Swagger docs at `/api-docs`.
+- **Real-time Testing:** Use Postman's Socket.io client for events like `send_message`, `mark_as_read`.
+- **File Upload:** Use `form-data` in Postman with keys like `profilePic`, `damageImage`, etc.
+
+## Contributing
+
+Contributions are welcome. Please follow standard practices for pull requests and issues.
