@@ -3,6 +3,7 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const userController = require("../controllers/userController");
 const privacy = require("../middleware/privacy");
+const uploadMiddleware = require('../middleware/uploadMiddleware')
 
 
 
@@ -18,6 +19,11 @@ router.patch("/me/visibility" , authMiddleware , userController.updateVisibiityS
 
 router.put("/location", authMiddleware, userController.updateLocation);
 
+router.post('/upload-profile',
+    authMiddleware,
+    uploadMiddleware.single('profilePic'),
+    userController.updateProfileImage
+)
 
 
 

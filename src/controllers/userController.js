@@ -14,7 +14,6 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
-
 // OWN PROFILE MANAGE
 exports.getMyProfile = async (req, res) => {
     try {
@@ -62,3 +61,30 @@ exports.updateLocation = async (req, res) => {
         location: updated.location
     });
 };
+
+// update profile image
+exports.updateProfileImage  = async(req , res) =>{
+    try{
+        if(!req.file){
+            return res.status(400).json({
+                success:false , message: "Please select Image"
+            })
+        }
+        const imageUrl = `/uploads/${req.file.filename}`;
+        const userId = req.user.id;
+
+        await userService.updateProfileImage(userId , imageUrl);
+
+        res.status(200).json({
+            success:true,
+            message: "Profile Picture Uploaded",
+            url : imageUrl
+        });
+
+    }catch(error){
+        res.status(500).json({
+            success:false,
+            message: error.message
+        })
+    }
+}

@@ -41,3 +41,7 @@ exports.updateLocation = async (userId, location) => {
 
     return userRepo.updateByIdLocation(userId, { location: geo });
 };
+
+exports.updateProfileImage = async (userId , imageUrl)=>{
+    return await userRepo.UpdateUserProfilePic(userId , imageUrl);
+}

@@ -12,7 +12,6 @@ exports.createUser = (data) => {
     return User.create(data);
 };
 
-
 exports.updateById = async (id, updates) => {  // ← async add කරන්න
     return User.findByIdAndUpdate(id, updates, {
         new: true,
@@ -20,10 +19,10 @@ exports.updateById = async (id, updates) => {  // ← async add කරන්න
     }).select("-password");
 };
 
-
 exports.updateByIdLocation = (id, data) => {
     return User.findByIdAndUpdate(id, data, { new: true });
 };
+
 exports.updateVisibility = (id, visibility)=>{
     return User.findByIdAndUpdate(
         id,
@@ -32,4 +31,11 @@ exports.updateVisibility = (id, visibility)=>{
     ).select("-password")
 };
 
+exports.UpdateUserProfilePic = (id , imageUrl)=>{
+    return User.findByIdAndUpdate(id, {
+        profilePic :imageUrl
+    },{
+        new: true
+    })
+}
 
