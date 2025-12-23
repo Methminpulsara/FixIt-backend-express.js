@@ -88,6 +88,8 @@ All endpoints are prefixed with `/api/v1`.
 
 ### Review
 - `POST /review` - Create a review (authenticated)
+- `PUT /review/:id` - Update a review (authenticated)
+- `DELETE /review/:id` - Delete a review (authenticated)
 
 ### Admin
 - `GET /admin/mechanics/pending` - Get pending mechanics (admin)

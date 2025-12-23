@@ -5,3 +5,15 @@ send_message,චැට් පණිවිඩයක් යැවීම,Client ➔
 receive_message,පණිවිඩයක් ලැබීම,Server ➔ Receiver,"{ requestId, senderId, message, timestamp }"
 mark_as_read,පණිවිඩ බැලූ බව දැන්වීම,Client ➔ Server,"{ requestId, senderId }"
 messages_seen,පණිවිඩ කියවූ බව තහවුරු කිරීම,Server ➔ Original Sender,"{ requestId, seenBy }"
+
+
+
+black box ekt meka kiwwhma aye aye eya readme file ek update krla denw 
+------------------------------------------------------------------------
+Update the README with latest changes
+
+HOSTING WLT----------------------------------------------------------------------------------
+Platform,විස්තරය
+Render,දැනට ගොඩක් අය පාවිච්චි කරන්නේ මේක. Free පාවිච්චි කරන්න පුළුවන්. Node.js වැඩ වලට ගොඩක් ලේසියි.
+Railway,ඉතාම වේගවත් සහ පහසුවෙන් setup කරන්න පුළුවන් තැනක්. මුලින් ටිකක් Free දෙනවා.
+Heroku,"ඉස්සර ජනප්‍රියයි, හැබැයි දැන් මේක පාවිච්චි කරන්න නම් සල්ලි ගෙවන්න ඕනේ."

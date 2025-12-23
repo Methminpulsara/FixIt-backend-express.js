@@ -38,3 +38,17 @@ exports.getLatestReviews = (providerId, limit = 3) => {
         .limit(limit)
         .populate('customerId', 'displayName'); // පාරිභෝගිකයාගේ නම පෙන්වීමට
 };
+
+exports.update = (reviewId, data) => {
+    return Review.findByIdAndUpdate(reviewId, data, { new: true });
+};
+
+// Review එකක් delete කිරීම
+exports.delete = (reviewId) => {
+    return Review.findByIdAndDelete(reviewId);
+};
+
+// ID එකෙන් review එකක් සෙවීම
+exports.findById = (reviewId) => {
+    return Review.findById(reviewId);
+};

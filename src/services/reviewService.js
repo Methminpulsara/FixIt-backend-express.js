@@ -31,3 +31,30 @@ exports.submitReview = async (customerId, data) => {
         comment
     });
 };
+
+
+exports.updateReview = async (customerId, reviewId, data) => {
+    const review = await reviewRepository.findById(reviewId);
+    if (!review) throw new Error("Review not found.");
+
+    // තමන්ගේම review එකක්ද බලන්න
+    if (review.customerId.toString() !== customerId) {
+        throw new Error("You can only edit your own reviews.");
+    }
+
+    return await reviewRepository.update(reviewId, {
+        rating: data.rating,
+        comment: data.comment
+    });
+};
+
+exports.deleteReview = async (customerId, reviewId) => {
+    const review = await reviewRepository.findById(reviewId);
+    if (!review) throw new Error("Review not found.");
+
+    if (review.customerId.toString() !== customerId) {
+        throw new Error("You can only delete your own reviews.");
+    }
+
+    return await reviewRepository.delete(reviewId);
+};
