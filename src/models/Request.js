@@ -41,8 +41,8 @@ const RequestSchema = new mongoose.Schema({
 
     // time
     acceptedAt:{type:Date,default:null},
-    completedAt:{type:Date, default:null}
-
+    completedAt:{type:Date, default:null},
+    damageImage: { type: String },
 },{timestamps:true});
 
 //  Geo-Spatial Queries For Index 

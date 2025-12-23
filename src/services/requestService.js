@@ -27,6 +27,8 @@ exports.createServiceRequest = async (customerId, data, io) => {
         requestType: data.requestType,
         issueDescription: data.issueDescription,
         vehicleDetails: data.vehicleDetails,
+        damageImage : data.damageImage,
+        
         location: {
             type: "Point",
             coordinates: [data.lng, data.lat]
@@ -69,7 +71,8 @@ exports.createServiceRequest = async (customerId, data, io) => {
                 customerName: "A customer",
                 issue: data.issueDescription,
                 distance: "Nearby",
-                requestType: data.requestType
+                requestType: data.requestType,
+                damageImage: newRequest.damageImage 
             });
             console.log(`✅ Message emitted to socket: ${socketId}`);
         } else {
@@ -217,4 +220,7 @@ exports.getProviderTodayStats = async (providerId) => {
     };
 };
 
+exports.getNearbyPendingRequests = async (lng, lat, type) => {
+    return await requestRepository.findAvailableNearby(lng, lat, 10, type); // 10km ඇතුළත requests
+};
 

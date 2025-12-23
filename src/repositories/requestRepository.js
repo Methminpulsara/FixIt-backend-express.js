@@ -35,3 +35,18 @@ exports.findCompletedJobsByProviderToday = (providerId) => {
         completedAt: { $gte: startOfDay, $lte: endOfDay }
     });
 };
+
+
+// get near proviedrs
+exports.findAvailableNearby = (lng, lat, maxDistance, type) => {
+    return Request.find({
+        status: "pending",
+        requestType: type,
+        location: {
+            $near: {
+                $geometry: { type: "Point", coordinates: [lng, lat] },
+                $maxDistance: maxDistance * 1000
+            }
+        }
+    }).populate("customerId", "displayName phone");
+};

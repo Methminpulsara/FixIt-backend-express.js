@@ -6,15 +6,31 @@ const requestService = require('../services/requestService')
 exports.createRequest = async (req, res) => {
     try {
         if (req.user.type !== "customer") {
-             return res.status(403).json({ message: "Only customers can create requests." });
+            return res.status(403).json({ message: "Only customers can create requests." });
         }
+
         const io = req.app.get("socketio");
         
-        const { lng, lat, requestType, issueDescription } = req.body;
+        // Multer හරහා පින්තූරයක් ඇවිත් තියෙනවාද බලන්න
+        const damageImage = req.file ? `/uploads/${req.file.filename}` : null;
+
+        const { lng, lat, requestType, issueDescription, vehicleDetails } = req.body;
+
         if (!lng || !lat || !requestType || !issueDescription) {
-            return res.status(400).json({ message: "Missing required request details (location, type, description)." });
+            return res.status(400).json({ message: "Missing required details." });
         }
-        const result = await requestService.createServiceRequest(req.user.id, req.body, io);
+
+        // පින්තූරයත් ඇතුළුව requestData එක හදන්න
+        const requestData = {
+            lng,
+            lat,
+            requestType,
+            issueDescription,
+            vehicleDetails,
+            damageImage // 👈 අලුතින් එකතු කළා
+        };
+
+        const result = await requestService.createServiceRequest(req.user.id, requestData, io);
         res.status(201).json({ success: true, request: result });
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -62,6 +78,18 @@ exports.completeRequest = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 }
+
+exports.getNearbyRequests = async (req, res) => {
+    try {
+        const { lng, lat } = req.query;
+        const type = req.user.type; // mechanic හෝ garage
+        const requests = await requestService.getNearbyPendingRequests(lng, lat, type);
+        res.json({ success: true, data: requests });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
 
 exports.getMyRequests = async (req, res) => {
     try {
