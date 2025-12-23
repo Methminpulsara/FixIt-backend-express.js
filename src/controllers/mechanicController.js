@@ -32,6 +32,7 @@
 // };
 
 const mechanicService = require("../services/mechanicService");
+const Mechanic = require('../models/Mechanic')
 
 exports.createProfile = async (req, res) => { // 💡 async
     try {
@@ -62,5 +63,19 @@ exports.updateProfile = async (req, res) => { // 💡 async
         res.json({ success: true, profile: updatedProfile });
     } catch (err) {
         res.status(400).json({ message: err.message });
+    }
+};
+
+exports.uploadMechanicDocument = async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ message: "ෆයිල් එකක් එවන්න" });
+        
+        const { docType } = req.body; // nic, certificate, license
+        const fileUrl = `/uploads/${req.file.filename}`;
+        
+        const result = await mechanicService.uploadMechanicDoc(req.user.id, docType, fileUrl);
+        res.status(200).json({ success: true, url: fileUrl, data: result });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

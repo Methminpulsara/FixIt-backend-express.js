@@ -70,14 +70,6 @@ exports.updateMechanicProfile = async (userId, body) => {
     return await mechanicRepository.updateByUserId(userId, updatedData); // 💡 await
 };
 
-// // --- Admin Service (Verification) ---
-// // (මේවා adminService එකට transfer කළ හැකිය, නමුත් මෙහිදී update කරමු)
-// exports.approveMechanic = async (mechanicId) => { // 💡 async
-//     const data = { verificationStatus: "approved", isVerified: true };
-//     return await mechanicRepository.updateVerificationStatus(mechanicId, data); // 💡 await
-// };
-
-// exports.rejectMechanic = async (mechanicId) => { // 💡 async
-//     const data = { verificationStatus: "rejected", isVerified: false };
-//     return await mechanicRepository.updateVerificationStatus(mechanicId, data); // 💡 await
-// };
+exports.uploadMechanicDoc = async (userId, docType, fileUrl) => {
+    return await mechanicRepository.updateDocuments(userId, docType, fileUrl);
+};

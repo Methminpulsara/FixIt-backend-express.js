@@ -35,3 +35,16 @@ exports.updateProfile = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.uploadGaragePhoto = async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ message: "පින්තූරයක් එවන්න" });
+
+        const fileUrl = `/uploads/${req.file.filename}`;
+        
+        const result = await garageService.uploadGaragePhoto(req.user.id, fileUrl);
+        res.status(200).json({ success: true, url: fileUrl, data: result });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

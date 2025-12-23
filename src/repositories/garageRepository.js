@@ -23,3 +23,12 @@ exports.updateVerificationStatus = (garageId, status, isVerified) => {
         { new: true }
     ).populate('userId', '-password');
 };
+
+exports.addPhoto = (userId, fileUrl) => {
+    // Photos කියන්නේ array එකක් නිසා $push පාවිච්චි කරනවා
+    return Garage.findOneAndUpdate(
+        { userId }, 
+        { $push: { photos: fileUrl } }, 
+        { new: true }
+    );
+};

@@ -46,4 +46,7 @@ exports.updateGarageProfile = async (userId, updateData) => {
     return await garageRepository.updateByUserId(userId, dataToUpdate);
 };
 
-// 4. Admin Functions
+// upload photos
+exports.uploadGaragePhoto = async (userId, fileUrl) => {
+    return await garageRepository.addPhoto(userId, fileUrl);
+};

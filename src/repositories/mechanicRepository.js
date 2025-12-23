@@ -31,3 +31,11 @@ exports.findPending = () => {
     "-password"
   );
 };
+
+
+// Upload documents
+exports.updateDocuments = (userId, docType, fileUrl) => {
+    const update = {};
+    update[`documents.${docType}`] = fileUrl; // උදා: documents.nic
+    return MechanicProfile  .findOneAndUpdate({ userId }, { $set: update }, { new: true });
+};
