@@ -1,5 +1,5 @@
-const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./config/swagger");
+// const swaggerUi = require("swagger-ui-express");
+// const swaggerSpec = require("./config/swagger");
 
 const express = require('express');
 const cors = require('cors');
@@ -31,7 +31,7 @@ app.use("/api/v1/request", requestRoutes)
 app.use("/api/v1/chat" , chatRoutes)
 app.use("/api/v1/review" , reveiewRoutes)
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 app.get("/", (req, res) => res.send("works"));
