@@ -48,3 +48,19 @@ exports.uploadGaragePhoto = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.deletePhoto = async (req, res )=>{
+    try {
+        
+        const {photoUrl} = req.body;
+        const result = await garageService.deleteGaragePhoto(req.user.id , photoUrl);
+        res.status(200).json({
+            success:true,
+            message: "Photo Deleted ",
+            data: result
+        })
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}

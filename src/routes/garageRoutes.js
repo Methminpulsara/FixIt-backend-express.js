@@ -13,4 +13,8 @@ router.put('/profile',authMiddleware,garageController.updateProfile);
 
 // router.post('/upload-photo', authMiddleware , upload.single('photo') , garageController.uploadGaragePhoto)
 router.post('/upload-photo', authMiddleware,requireRole('garage'), upload.single('photo'), garageController.uploadGaragePhoto);
+
+// delete photo
+router.delete('/delete-photo' , authMiddleware, requireRole("garage") , garageController.deletePhoto)
+
 module.exports = router;

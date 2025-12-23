@@ -1,6 +1,11 @@
 const garageRepository = require('../repositories/garageRepository');
 const reviewRepository = require('../repositories/reviewRepository'); 
 
+
+// for remve photos
+const fs = require('fs')
+const path = require('path')
+
 // 1. Garage Profile එක නිර්මාණය කිරීම
 exports.createGarageProfile = async (userId, data) => {
     
@@ -38,6 +43,7 @@ exports.getGarageProfile = async (userId) => {
 
 // 3. Profile එක update කිරීම
 exports.updateGarageProfile = async (userId, updateData) => {
+
     const dataToUpdate = {
         ...updateData,
         verificationStatus: "pending", 
@@ -48,5 +54,26 @@ exports.updateGarageProfile = async (userId, updateData) => {
 
 // upload photos
 exports.uploadGaragePhoto = async (userId, fileUrl) => {
+    
+    const garage = await garageRepository.findByUserId(userId);
+
+    if(garage && garage.photos.length >=3){
+        throw new Error("3 photos only can Upload")
+    }
+
     return await garageRepository.addPhoto(userId, fileUrl);
 };
+
+exports.deleteGaragePhoto = async (userId, fileUrl)=>{
+    // 1. Database එකෙන් අයින් කරන්න
+    const updatedGarage = await garageRepository.removePhoto(userId, fileUrl);
+
+    // 2. සර්වර් එකේ ෆෝල්ඩර් එකෙන් මකා දමන්න
+    // photoUrl එක "/uploads/name.jpg" ලෙස ඇති නිසා root path එක හදාගත යුතුයි
+    const filePath = path.join(__dirname, '../../', fileUrl);
+
+    fs.unlink(filePath, (err=>{
+        if (err) console.error("File deletion error:", err);
+    }))
+    return updatedGarage;
+}

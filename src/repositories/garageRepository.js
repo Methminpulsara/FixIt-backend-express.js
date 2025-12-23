@@ -32,3 +32,12 @@ exports.addPhoto = (userId, fileUrl) => {
         { new: true }
     );
 };
+
+exports.removePhoto = (userId , fileUrl) =>{
+    return Garage.findOneAndUpdate(
+        {userId},
+        {$pull : {photos:fileUrl}},
+        {new:true}
+    )
+}
+
