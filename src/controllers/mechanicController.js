@@ -34,15 +34,36 @@
 const mechanicService = require("../services/mechanicService");
 const Mechanic = require('../models/Mechanic')
 
-exports.createProfile = async (req, res) => { // 💡 async
+exports.createProfile = async (req, res) => {
     try {
-        if(req.user.type !== "mechanic") return res.status(403).json({message:"only mechanics can apply"}); // 💡 .json()
-        const result = await mechanicService.createMechanicProfile(req.user.id, req.body); // 💡 await
+        if (req.user.type !== "mechanic") {
+            return res.status(403).json({ message: "Only mechanics can apply" });
+        }
+
+        // 1. FormData වලින් එන skills (string) එක array එකක් බවට පත් කිරීම
+        let mechanicData = { ...req.body };
+        if (typeof mechanicData.skills === 'string') {
+            mechanicData.skills = JSON.parse(mechanicData.skills);
+        }
+
+        // 2. Upload වුණු files වල paths ටික එකතු කිරීම
+        const documents = {};
+        if (req.files) {
+            if (req.files.nic) documents.nic = req.files.nic[0].path; // හෝ filename
+            if (req.files.certificate) documents.certificate = req.files.certificate[0].path;
+        }
+        
+        mechanicData.documents = documents;
+
+        // 3. Service එකට data යැවීම
+        const result = await mechanicService.createMechanicProfile(req.user.id, mechanicData);
+        
         res.status(201).json({ success: true, profile: result });
     } catch (err) {
+        console.error(err);
         res.status(400).json({ message: err.message });
     }
-};
+}
 
 exports.getProfile = async (req, res) => { // 💡 async
     try {

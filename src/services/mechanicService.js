@@ -30,18 +30,17 @@ const mechanicRepository = require("../repositories/mechanicRepository");
 const reviewRepository = require('../repositories/reviewRepository')
 // --- Mechanic Profile Management ---
 exports.createMechanicProfile = async (userId, body) => { 
-
     const existingProfile = await mechanicRepository.getByUserId(userId);
 
-    if(existingProfile){
-        throw new Error("Mechanic profile Already exists !")
+    if (existingProfile) {
+        throw new Error("Mechanic profile already exists!");
     }
 
     return await mechanicRepository.createProfile({ 
         userId,
         skills: body.skills || [],
         experience: body.experience || 0,
-        documents: body.documents || {}
+        documents: body.documents || {} // මෙතනට documents ටික ලැබෙනවා
     });
 };
 

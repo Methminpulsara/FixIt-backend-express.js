@@ -5,7 +5,15 @@ const mechanicController = require("../controllers/mechanicController");
 const requireRole=  require('../middleware/requireRole')
 const upload = require('../middleware/uploadMiddleware')
 
-router.post('/' , authMiddleware , requireRole("mechanic"),  mechanicController.createProfile);
+router.post('/', 
+    authMiddleware, 
+    requireRole("mechanic"), 
+    upload.fields([
+        { name: 'nic', maxCount: 1 }, 
+        { name: 'certificate', maxCount: 1 }
+    ]), 
+    mechanicController.createProfile
+);
 router.get('/' , authMiddleware , mechanicController.getProfile);
 router.put('/' , authMiddleware , mechanicController.updateProfile);
 

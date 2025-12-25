@@ -6,7 +6,7 @@ const requireRole = require('../middleware/requireRole');
 const upload = require('../middleware/uploadMiddleware');
 
 
-router.post('/profile',authMiddleware,  requireRole('garage'),garageController.createProfile);
+router.post('/profile',authMiddleware,  requireRole('garage') ,upload.none(),garageController.createProfile);
 router.get('/profile',authMiddleware,garageController.getProfile);
 router.put('/profile',authMiddleware,garageController.updateProfile);
 
