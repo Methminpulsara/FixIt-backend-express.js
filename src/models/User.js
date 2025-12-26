@@ -29,7 +29,11 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false 
     },
-    profilePic: { type: String, default: "" }
+    profilePic: { type: String, default: "" },
+    isOnboarded: { 
+    type: Boolean, 
+    default: false 
+},
 }, { timestamps: true });
 
 UserSchema.index({ location: "2dsphere" });
