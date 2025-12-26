@@ -20,10 +20,14 @@ exports.updateByUserId = (userId, data) => {
 };
 
 // Admin Approve/Reject
-exports.updateVerificationStatus = (id, data) => {
-  return MechanicProfile.findByIdAndUpdate(id, data, { new: true });
+exports.updateVerificationStatus = (id, data, options = {}) => {
+  // options හරහා session එක ලැබුණු විට එය MongoDB query එකට සම්බන්ධ වේ
+  return MechanicProfile.findByIdAndUpdate(
+    id, 
+    data, 
+    { new: true, ...options }
+  );
 };
-
 // ADMIN – FIND PENDING
 exports.findPending = () => {
   return MechanicProfile.find({ verificationStatus: "pending" }).populate(

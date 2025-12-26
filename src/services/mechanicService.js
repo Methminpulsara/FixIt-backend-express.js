@@ -28,20 +28,38 @@
 
 const mechanicRepository = require("../repositories/mechanicRepository");
 const reviewRepository = require('../repositories/reviewRepository')
+const User = require('../models/User')
+const mongoose = require('mongoose');
+
 // --- Mechanic Profile Management ---
-exports.createMechanicProfile = async (userId, body) => { 
-    const existingProfile = await mechanicRepository.getByUserId(userId);
+exports.createMechanicProfile = async (userId, body) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    if (existingProfile) {
-        throw new Error("Mechanic profile already exists!");
+    try {
+        const existingProfile = await mechanicRepository.getByUserId(userId);
+        if (existingProfile) throw new Error("Mechanic profile already exists!");
+
+        // 1. User Status එක Update කිරීම
+        await User.findByIdAndUpdate(userId, { isOnboarded: true }, { session });
+
+        // 2. Profile එක Create කිරීම
+        // repository එකටත් session එක pass කරන්න ඕනේ
+        const newProfile = await mechanicRepository.createProfile({
+            userId,
+            skills: body.skills || [],
+            experience: body.experience || 0,
+            documents: body.documents || {}
+        }, { session });
+
+        await session.commitTransaction();
+        return newProfile;
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
     }
-
-    return await mechanicRepository.createProfile({ 
-        userId,
-        skills: body.skills || [],
-        experience: body.experience || 0,
-        documents: body.documents || {} // මෙතනට documents ටික ලැබෙනවා
-    });
 };
 
 exports.getMechanicProfile = async (userId) => { 

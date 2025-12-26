@@ -16,11 +16,11 @@ exports.findPending = () => {
     return Garage.find({ verificationStatus: "pending" }).populate('userId', '-password');
 };
 
-exports.updateVerificationStatus = (garageId, status, isVerified) => {
+exports.updateVerificationStatus = (garageId, status, isVerified, options = {}) => {
     return Garage.findByIdAndUpdate(
         garageId,
         { verificationStatus: status, isVerified: isVerified },
-        { new: true }
+        { new: true, ...options } // session එක මෙතනට pass වේ
     ).populate('userId', '-password');
 };
 

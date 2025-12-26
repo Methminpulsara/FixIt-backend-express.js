@@ -7,22 +7,50 @@ const fs = require('fs')
 const path = require('path')
 
 // 1. Garage Profile එක නිර්මාණය කිරීම
+const mongoose = require('mongoose');
+const User = require('../models/User');
+
 exports.createGarageProfile = async (userId, data) => {
-    
-    // 💡 Validation Logic
-    const existingProfile = await garageRepository.findByUserId(userId); 
-    if (existingProfile) {
-        throw new Error("Garage profile already exists for this user.");
+    // 1. Session එකක් ආරම්භ කිරීම
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        // 2. දැනටමත් profile එකක් තියෙනවදැයි බැලීම
+        const existingProfile = await garageRepository.findByUserId(userId); 
+        if (existingProfile) {
+            throw new Error("Garage profile already exists for this user.");
+        }
+
+        const garageData = {
+            userId: userId,
+            name: data.name,
+            address: data.address,
+            services: data.services || []
+        };
+
+        // 3. User model එකේ isOnboarded: true කිරීම (Session එක ඇතුළත)
+        await User.findByIdAndUpdate(
+            userId, 
+            { isOnboarded: true }, 
+            { session }
+        );
+
+        // 4. Garage Profile එක create කිරීම (Repository එකට session එක pass කරන්න)
+        const newGarage = await garageRepository.create(garageData, { session });
+
+        // 5. සියල්ල සාර්ථක නම් Commit කිරීම
+        await session.commitTransaction();
+        return newGarage;
+
+    } catch (error) {
+        // මොකක් හරි වැරදුණොත් කරපු ඔක්කොම වෙනස්කම් අහෝසි කිරීම
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        // Session එක වසා දැමීම
+        session.endSession();
     }
-    
-    const garageData = {
-        userId: userId,
-        name: data.name,
-        address: data.address,
-        services: data.services || []
-    };
-    
-    return await garageRepository.create(garageData);
 };
 
 // 2. Profile එක ලබා ගැනීම
