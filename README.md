@@ -34,6 +34,159 @@ The project follows a repository pattern for better organization:
 - **utils/:** Utility functions.
 - **config/:** Configuration files for DB and Swagger.
 
+## Database Models
+
+### User Model
+#### Attributes & Data Types
+- `_id`: ObjectId (Primary Key, auto-generated)
+- `username`: String (required, unique)
+- `firstName`: String
+- `lastName`: String
+- `displayName`: String
+- `email`: String (unique)
+- `phone`: String
+- `password`: String
+- `type`: String (enum: ["customer", "mechanic", "garage", "admin"], required)
+- `location`: Object
+  - `type`: String (enum: ["Point"], default: "Point")
+  - `coordinates`: Array of Numbers (default: [0, 0])
+- `visibilitySettings`: Object
+  - `showProfile`: Boolean (default: true)
+  - `showPhone`: Boolean (default: false)
+  - `showLocation`: Boolean (default: false)
+- `isVerified`: Boolean (default: false)
+- `profilePic`: String (default: "")
+- `isOnboarded`: Boolean (default: false)
+- `createdAt`: Date (auto-generated timestamp)
+- `updatedAt`: Date (auto-generated timestamp)
+
+#### Relationships
+- Primary Key: `_id`
+- No foreign keys (base model)
+
+### Mechanic Model
+#### Attributes & Data Types
+- `_id`: ObjectId (Primary Key, auto-generated)
+- `userId`: ObjectId (Foreign Key to User, required)
+- `skills`: Array of Strings
+- `experience`: Number
+- `documents`: Object
+  - `nic`: String
+  - `certificate`: String
+  - `license`: String
+- `verificationStatus`: String (enum: ["pending", "approved", "rejected"], default: "pending")
+- `isVerified`: Boolean (default: false)
+- `isAvailable`: Boolean (default: true)
+- `createdAt`: Date (auto-generated timestamp)
+- `updatedAt`: Date (auto-generated timestamp)
+
+#### Relationships
+- Primary Key: `_id`
+- Foreign Key: `userId` references `User._id`
+
+### Garage Model
+#### Attributes & Data Types
+- `_id`: ObjectId (Primary Key, auto-generated)
+- `userId`: ObjectId (Foreign Key to User, required)
+- `name`: String (required)
+- `address`: String
+- `photos`: Array of Strings
+- `verificationStatus`: String (enum: ["pending", "approved", "rejected"], default: "pending")
+- `isVerified`: Boolean (default: false)
+- `isAvailable`: Boolean (default: true)
+- `createdAt`: Date (auto-generated timestamp)
+- `updatedAt`: Date (auto-generated timestamp)
+
+#### Relationships
+- Primary Key: `_id`
+- Foreign Key: `userId` references `User._id`
+
+### Request Model
+#### Attributes & Data Types
+- `_id`: ObjectId (Primary Key, auto-generated)
+- `customerId`: ObjectId (Foreign Key to User, required)
+- `providerId`: ObjectId (Foreign Key to User)
+- `requestType`: String (enum: ["mechanic", "garage"])
+- `issueDescription`: String (required)
+- `vehicleDetails`: String
+- `location`: Object
+  - `type`: String (enum: ["Point"], default: "Point")
+  - `coordinates`: Array of Numbers (required)
+- `status`: String (enum: ["pending", "accepted", "in_progress", "completed", "cancelled"], default: "pending")
+- `acceptedAt`: Date (default: null)
+- `completedAt`: Date (default: null)
+- `damageImage`: String
+- `createdAt`: Date (auto-generated timestamp)
+- `updatedAt`: Date (auto-generated timestamp)
+
+#### Relationships
+- Primary Key: `_id`
+- Foreign Key: `customerId` references `User._id`
+- Foreign Key: `providerId` references `User._id`
+
+### Message Model
+#### Attributes & Data Types
+- `_id`: ObjectId (Primary Key, auto-generated)
+- `requestId`: ObjectId (Foreign Key to Request, required)
+- `senderId`: ObjectId (Foreign Key to User, required)
+- `receiverId`: ObjectId (Foreign Key to User, required)
+- `messageType`: String (enum: ["text", "image"], default: "text")
+- `isRead`: Boolean (default: false)
+- `createdAt`: Date (auto-generated timestamp)
+- `updatedAt`: Date (auto-generated timestamp)
+
+#### Relationships
+- Primary Key: `_id`
+- Foreign Key: `requestId` references `Request._id`
+- Foreign Key: `senderId` references `User._id`
+- Foreign Key: `receiverId` references `User._id`
+
+### Review Model
+#### Attributes & Data Types
+- `_id`: ObjectId (Primary Key, auto-generated)
+- `requestId`: ObjectId (Foreign Key to Request, required)
+- `customerId`: ObjectId (Foreign Key to User, required)
+- `providerId`: ObjectId (Foreign Key to User, required)
+- `rating`: Number (required, min: 1, max: 5)
+- `comment`: String (trimmed)
+- `createdAt`: Date (auto-generated timestamp)
+- `updatedAt`: Date (auto-generated timestamp)
+
+#### Relationships
+- Primary Key: `_id`
+- Foreign Key: `requestId` references `Request._id`
+- Foreign Key: `customerId` references `User._id`
+- Foreign Key: `providerId` references `User._id`
+
+### Relationships Overview
+- **User** is the central entity.
+- **Mechanic** and **Garage** extend **User** via `userId` (one-to-one relationship, as each User can have at most one Mechanic or Garage profile based on `type`).
+- **Request** links **User** as customer and provider (many-to-many via Users, but provider is optional until accepted).
+- **Message** belongs to a **Request** and involves two **Users** (sender and receiver).
+- **Review** belongs to a **Request** and involves **User** as customer and provider.
+
+### Cardinality
+- **User** to **Mechanic**: One-to-One (each Mechanic has one User, each User can have one Mechanic if type is "mechanic").
+- **User** to **Garage**: One-to-One (each Garage has one User, each User can have one Garage if type is "garage").
+- **User** to **Request** (as customer): One-to-Many (one User can create many Requests).
+- **User** to **Request** (as provider): One-to-Many (one User can accept many Requests).
+- **Request** to **Message**: One-to-Many (one Request can have many Messages).
+- **Request** to **Review**: One-to-One (one Request can have one Review, assuming one review per request).
+- **User** to **Message** (as sender/receiver): One-to-Many (one User can send/receive many Messages).
+- **User** to **Review** (as customer/provider): One-to-Many (one User can give/receive many Reviews).
+
+### ER Diagram Requirements
+- **Missing Attributes**: 
+  - Add `services` array to **Garage** (commented out in code, but useful for specifying garage services).
+  - Consider adding `price` or `estimatedCost` to **Request** for budgeting.
+  - Add `message` content field to **Message** (currently missing the actual message text/image URL).
+- **Improvements**:
+  - Ensure consistent naming (e.g., `providerId` in Request could be more specific like `mechanicId` or `garageId` based on `requestType`).
+  - Add indexes for performance (e.g., on foreign keys like `userId` in Mechanic/Garage).
+  - Consider adding constraints or validations (e.g., ensure providerId matches requestType).
+  - For ER diagram, represent inheritance: User as base, with Mechanic and Garage as subtypes.
+  - Add composite keys or unique constraints where logical (e.g., one Review per Request).
+
 ## Installation
 
 1. Clone the repository.
