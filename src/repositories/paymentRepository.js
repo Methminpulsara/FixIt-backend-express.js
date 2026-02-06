@@ -29,7 +29,7 @@ exports.UupdateStatus = (id, status, paidAt = null) => {
     return Payment.findByIdAndUpdate(id, updateData, { new: true });
 };
 
-exports.findByProvideId = (userId, role) => {
+exports.findForUser = (userId, role) => {
     const query = (role === "customer") ? { customerid: userId } : { providerId: userId }
     return Payment.findOne(query)
         .sort({ createdAt: -1 })
