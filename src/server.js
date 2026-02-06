@@ -16,7 +16,7 @@ app.set("socketio", io);
 // Initialize socket module
 initLocationSocket(io);
 
-const port = 5000;
+const port = 5001;
 server.listen(port, () =>
   console.log("🚀 Server + WebSocket running on port " + port)
 );
