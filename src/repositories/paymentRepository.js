@@ -5,11 +5,9 @@ exports.createPayment = (data) => {
     return Payment.create(data);
 };
 
-exports.findById = (paymentId) => {
+exports.findById = (id) => {
     return Payment.findById(id)
-        // populate klam me id ekt adhala deytails ee table eken gnn puluwn request table eke okkma enw 
         .populate("requestId")
-        // methna enne Display name and phone number ek 
         .populate("customerId", "DisplayName phone")
         .populate("providerId", "DisplayName phone")
 
