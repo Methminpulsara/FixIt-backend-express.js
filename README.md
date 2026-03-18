@@ -69,6 +69,8 @@ The project follows a repository pattern for better organization:
 ├── package.json
 └── README.md
 
+
+```
 System Roles
 
 The system supports the following user roles:
