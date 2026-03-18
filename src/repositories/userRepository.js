@@ -1,41 +1,33 @@
-const User = require("../models/User");
+const User = require('../models/User');
 
-exports.findById = (id) => {
-    return User.findById(id).select("-password");
+exports.findByEmail = (email) => User.findOne({ email });
+
+exports.createUser = (data) => User.create(data);
+
+exports.findById = (id) => User.findById(id).select('-password');
+
+exports.updateById = (id, data) =>
+  User.findByIdAndUpdate(id, data, { new: true }).select('-password');
+
+exports.updateVisibility = (id, visibilitySettings) =>
+  User.findByIdAndUpdate(id, { visibilitySettings }, { new: true }).select('-password');
+
+exports.updateByIdLocation = (id, lngOrData, lat) => {
+  let updateData;
+
+  if (typeof lngOrData === 'object' && lngOrData !== null) {
+    updateData = lngOrData;
+  } else {
+    updateData = {
+      location: {
+        type: 'Point',
+        coordinates: [Number(lngOrData), Number(lat)],
+      },
+    };
+  }
+
+  return User.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
 };
 
-exports.findByEmail = (email) => {
-    return User.findOne({ email });
-};
-
-exports.createUser = (data) => {
-    return User.create(data);
-};
-
-exports.updateById = async (id, updates) => {  // ← async add කරන්න
-    return User.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: true  // ← Validation run කරන්න
-    }).select("-password");
-};
-
-exports.updateByIdLocation = (id, data) => {
-    return User.findByIdAndUpdate(id, data, { new: true });
-};
-
-exports.updateVisibility = (id, visibility)=>{
-    return User.findByIdAndUpdate(
-        id,
-        {visibilitySettings:visibility},
-        {new:true, runValidators:true}
-    ).select("-password")
-};
-
-exports.UpdateUserProfilePic = (id , imageUrl)=>{
-    return User.findByIdAndUpdate(id, {
-        profilePic :imageUrl
-    },{
-        new: true
-    })
-}
-
+exports.UpdateUserProfilePic = (id, profilePic) =>
+  User.findByIdAndUpdate(id, { profilePic }, { new: true }).select('-password');
