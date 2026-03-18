@@ -1,251 +1,210 @@
-const requestRepository = require("../repositories/requestRepository")
-const mechanicRepository = require("../repositories/mechanicRepository")
-const garageRepository = require("../repositories/garageRepository")
-const providerRepository = require('../repositories/providerRepository')
-const { getOnlineUsers } = require("../realtime/locationSocket")
-const userRepository = require('../repositories/userRepository')
+const requestRepository = require('../repositories/requestRepository');
+const mechanicRepository = require('../repositories/mechanicRepository');
+const garageRepository = require('../repositories/garageRepository');
+const providerRepository = require('../repositories/providerRepository');
+const paymentRepository = require('../repositories/paymentRepository');
+const { getOnlineUsers } = require('../realtime/locationSocket');
+const userRepository = require('../repositories/userRepository');
 
-
-
-// hellper funtion for provider availability 
-const toggleProviderAvailability = async(providerId, requestType , isAvailable) => {
-
-    if(requestType === "mechanic"){
-        await mechanicRepository.updateByUserId(providerId, {isAvailable:isAvailable})
-    }else if(requestType === "garage"){
-        await garageRepository.updateByUserId(providerId, {isAvailable:isAvailable})
-    }
-}
-
-
-// create request
-// create request
-exports.createServiceRequest = async (customerId, data, io) => {
-
-    const requestData = {
-        customerId: customerId,
-        requestType: data.requestType,
-        issueDescription: data.issueDescription,
-        vehicleDetails: data.vehicleDetails,
-        damageImage : data.damageImage,
-        
-        location: {
-            type: "Point",
-            coordinates: [data.lng, data.lat]
-        }
-    };
-
-    const newRequest = await requestRepository.create(requestData);
-
-    // find near mechanics in 5KM
-    const nearProviders = await providerRepository.findNearProviders(
-        data.lng,
-        data.lat,
-        5,
-        data.requestType
-    );
-    
-    console.log(`🔍 Nearby ${data.requestType}s Found:`, nearProviders.length);
-
-    const onlineUsers = getOnlineUsers();
-    console.log("📱 Currently Online Users in Map:", Array.from(onlineUsers.keys()));
-
-    // සබැඳිව සිටින mechanics/garages වෙත notification යැවීම
-    nearProviders.forEach(provider => {
-        
-        /** * 💡 මෙතැනයි වැරැද්ද තිබුණේ: 
-         * provider._id කියන්නේ Garage/Mechanic ID එක. 
-         * නමුත් socket එකේ register වෙලා තියෙන්නේ User ID එක.
-         */
-        const targetUserId = provider.userId._id 
-            ? provider.userId._id.toString() 
-            : provider.userId.toString();
-
-        const socketId = onlineUsers.get(targetUserId);
-        
-        console.log(`📡 Attempting to send to User: ${targetUserId} | SocketID: ${socketId}`); 
-
-        if (socketId) {
-            io.to(socketId).emit("new_service_request", {
-                requestId: newRequest._id,
-                customerName: "A customer",
-                issue: data.issueDescription,
-                distance: "Nearby",
-                requestType: data.requestType,
-                damageImage: newRequest.damageImage 
-            });
-            console.log(`✅ Message emitted to socket: ${socketId}`);
-        } else {
-            console.log(`⚠️ User ${targetUserId} is not online (No SocketID found).`);
-        }
-    });
-
-    return newRequest;
-}
-
-// Accept Request
-exports.acceptRequest = async (requestId, providerId, requestType, io) => {
-    console.log(`📩 Attempting to accept request: ${requestId} by provider: ${providerId}`);
-    
-    // 1. මුලින්ම පරීක්ෂා කරන්න මේ Provider (Mechanic/Garage) ඇත්තටම Approved ද කියලා
-    let providerProfile;
-    if (requestType === "mechanic") {
-        providerProfile = await mechanicRepository.getByUserId(providerId);
-    } else if (requestType === "garage") {
-        providerProfile = await garageRepository.findByUserId(providerId);
-    }
-
-    // 🛡️ Validation: Profile එකක් නැත්නම් හෝ Admin Approve කරලා නැත්නම් Error එකක් යවනවා
-    if (!providerProfile || providerProfile.verificationStatus !== "approved") {
-        throw new Error("Your account is pending approval. You cannot accept requests yet.");
-    }
-
-    // 2. Request එක තියෙනවද බලන්න
-    const request = await requestRepository.findById(requestId);
-    if (!request) {
-        throw new Error("Service Request not found.");
-    }
-
-    // 3. Request එක තවමත් Pending ද කියලා බලන්න (වෙන අයෙක් අරන් නැති බව තහවුරු කරන්න)
-    if (request.status !== "pending" || request.providerId) {
-        throw new Error("This request is no longer available.");
-    }
-
-    // 4. Request Type එක ගැලපෙනවද බලන්න (Mechanic ට Garage requests බැරි වෙන්න)
-    if (request.requestType !== requestType) {
-        throw new Error(`This request is only for ${request.requestType}s.`);
-    }
-
-    // ✅ සියල්ල නිවැරදි නම් Request එක Update කරන්න
-    const updateRequest = await requestRepository.updateById(requestId, {
-        status: "accepted",
-        providerId: providerId,
-        acceptedAt: new Date()
-    });
-
-    console.log(`✅ Request ${requestId} status updated to: ACCEPTED`);
-
-    // 5. Provider ව 'Not Available' කරන්න (වැඩේ ඉවර වෙනකම් තව Request එන්නේ නැති වෙන්න)
-    await toggleProviderAvailability(providerId, requestType, false);
-
-    // 6. Real-time notification to CUSTOMER
-    const onlineUsers = getOnlineUsers();
-    const customerSocketId = onlineUsers.get(updateRequest.customerId.toString());
-
-    if (customerSocketId) {
-        console.log(`📡 Notifying Customer ${updateRequest.customerId} via socket: ${customerSocketId}`);
-        io.to(customerSocketId).emit("request_accepted", {
-            requestId: requestId,
-            providerId: providerId,
-            message: "A provider has accepted your request and is starting the job!"
-        });
-    } else {
-        console.log(`⚠️ Customer ${updateRequest.customerId} is offline.`);
-    }
-
-    return updateRequest;
+const toggleProviderAvailability = async (providerId, requestType, isAvailable) => {
+  if (requestType === 'mechanic') {
+    await mechanicRepository.updateByUserId(providerId, { isAvailable });
+  } else if (requestType === 'garage') {
+    await garageRepository.updateByUserId(providerId, { isAvailable });
+  }
 };
 
+exports.createServiceRequest = async (customerId, data, io) => {
+  const lng = Number(data.lng);
+  const lat = Number(data.lat);
 
-// finish request  
-exports.completeServiceRequest = async (requestId , providerId,io) =>{
-console.log(`🏁 Attempting to complete request: ${requestId}`);
-    const request = await requestRepository.findById(requestId);
+  if (Number.isNaN(lng) || Number.isNaN(lat)) {
+    throw new Error('Invalid location coordinates.');
+  }
 
-    if(!request){
-        throw new Error("Service Request not found.")
+  const requestData = {
+    customerId,
+    requestType: data.requestType,
+    issueDescription: data.issueDescription,
+    vehicleDetails: data.vehicleDetails,
+    damageImage: data.damageImage,
+    estimatedCost: data.estimatedCost || 0,
+    location: {
+      type: 'Point',
+      coordinates: [lng, lat],
+    },
+  };
+
+  const newRequest = await requestRepository.create(requestData);
+
+  const nearProviders = await providerRepository.findNearProviders(lng, lat, 5, data.requestType);
+  const onlineUsers = getOnlineUsers();
+
+  nearProviders.forEach((provider) => {
+    const targetUserId = provider.userId?._id
+      ? provider.userId._id.toString()
+      : provider.userId.toString();
+
+    const socketId = onlineUsers.get(targetUserId);
+    if (socketId) {
+      io.to(socketId).emit('new_service_request', {
+        requestId: newRequest._id,
+        customerName: 'A customer',
+        issue: data.issueDescription,
+        distance: 'Nearby',
+        requestType: data.requestType,
+        damageImage: newRequest.damageImage,
+      });
     }
+  });
 
-    // chech provider id match to service provider id 
-    if(request.providerId._id.toString() !== providerId.toString()){
-        throw new Error("You are not authorized to complete this request")
-    }
+  return newRequest;
+};
 
-    // update request
-    const updateRequest = await requestRepository.updateById(requestId,{
-        status: "completed",
-        completedAt : new Date()
-    })
-    console.log(`✅ Request ${requestId} status updated to: COMPLETED`);
+exports.acceptRequest = async (requestId, providerId, requestType, io) => {
+  let providerProfile;
+  if (requestType === 'mechanic') {
+    providerProfile = await mechanicRepository.getByUserId(providerId);
+  } else if (requestType === 'garage') {
+    providerProfile = await garageRepository.findByUserId(providerId);
+  }
 
-    // provider availability again true 
-    await toggleProviderAvailability(providerId ,request.requestType, true)
+  if (!providerProfile || providerProfile.verificationStatus !== 'approved') {
+    throw new Error('Your account is pending approval. You cannot accept requests yet.');
+  }
 
-    const onlineUsers = getOnlineUsers();
-    const customerSocketId = onlineUsers.get(updateRequest.customerId.toString());
+  const request = await requestRepository.findById(requestId);
+  if (!request) throw new Error('Service Request not found.');
 
-    if (customerSocketId) {
-        io.to(customerSocketId).emit("request_completed", {
-            requestId: requestId,
-            message: "The service is completed. Please rate your experience!"
-        });
-        console.log("🚀 Completion notification sent to customer.");
-    }
+  if (request.status !== 'pending' || request.providerId) {
+    throw new Error('This request is no longer available.');
+  }
 
-    return updateRequest;
-}
+  if (request.requestType !== requestType) {
+    throw new Error(`This request is only for ${request.requestType}s.`);
+  }
 
+  const updatedRequest = await requestRepository.updateById(requestId, {
+    status: 'accepted',
+    providerId,
+    acceptedAt: new Date(),
+  });
 
-// for customer get history
+  await toggleProviderAvailability(providerId, requestType, false);
+
+  const onlineUsers = getOnlineUsers();
+  const customerId = updatedRequest.customerId?._id
+    ? updatedRequest.customerId._id.toString()
+    : updatedRequest.customerId.toString();
+  const customerSocketId = onlineUsers.get(customerId);
+
+  if (customerSocketId) {
+    io.to(customerSocketId).emit('request_accepted', {
+      requestId,
+      providerId,
+      message: 'A provider has accepted your request and is starting the job!',
+    });
+  }
+
+  return updatedRequest;
+};
+
+exports.completeServiceRequest = async (requestId, providerId, io, finalAmount = 0) => {
+  const request = await requestRepository.findById(requestId);
+  if (!request) throw new Error('Service Request not found.');
+  if (!request.providerId) throw new Error('This request has no assigned provider.');
+
+  const assignedProviderId = request.providerId._id
+    ? request.providerId._id.toString()
+    : request.providerId.toString();
+
+  if (assignedProviderId !== providerId.toString()) {
+    throw new Error('You are not authorized to complete this request.');
+  }
+
+  if (!['accepted', 'in_progress'].includes(request.status)) {
+    throw new Error('Only accepted or in-progress requests can be completed.');
+  }
+
+  const amount = Number(finalAmount || request.estimatedCost || 0);
+  if (Number.isNaN(amount) || amount < 0) {
+    throw new Error('Invalid final amount.');
+  }
+
+  const updatedRequest = await requestRepository.updateById(requestId, {
+    status: 'completed',
+    completedAt: new Date(),
+    finalAmount: amount,
+    paymentStatus: 'pending_cash',
+  });
+
+  await toggleProviderAvailability(providerId, request.requestType, true);
+
+  const existingPayment = await paymentRepository.findByRequestId(requestId);
+  if (!existingPayment) {
+    await paymentRepository.createPayment({
+      requestId,
+      customerId: request.customerId._id ? request.customerId._id : request.customerId,
+      providerId,
+      amount,
+      method: 'cash',
+      status: 'pending',
+    });
+  }
+
+  const onlineUsers = getOnlineUsers();
+  const customerId = updatedRequest.customerId?._id
+    ? updatedRequest.customerId._id.toString()
+    : updatedRequest.customerId.toString();
+  const customerSocketId = onlineUsers.get(customerId);
+
+  if (customerSocketId) {
+    io.to(customerSocketId).emit('request_completed', {
+      requestId,
+      finalAmount: amount,
+      paymentStatus: 'pending_cash',
+      message: 'The service is completed. Please pay cash and confirm payment in the app.',
+    });
+  }
+
+  return updatedRequest;
+};
+
 exports.getRequestsByUserId = async (userId, userType) => {
-    let query = {};
-
-    if (userType === 'customer') {
-       
-        query = { customerId: userId };
-    } else if (userType === 'mechanic' || userType === 'garage') {
-      
-        query = { providerId: userId };
-    } else {
-   
-        return [];
-    }
-
-    return await requestRepository.find(query); 
+  if (userType === 'customer') return requestRepository.find({ customerId: userId });
+  if (userType === 'mechanic' || userType === 'garage') return requestRepository.find({ providerId: userId });
+  return [];
 };
 
 exports.getProviderTodayStats = async (providerId) => {
-    // Repository එක call කිරීම (දෙගොල්ලන්ටම පොදුයි)
-    const todayJobs = await requestRepository.findCompletedJobsByProviderToday(providerId);
-    
-    // මෙතැනදී එක් එක් job එකේ 'price' එක database එකේ තියෙනවා නම් ඒක එකතු කරන්න පුළුවන්.
-    // දැනට අපි totalEarnings ගණනය කරමු.
-    const totalEarnings = todayJobs.reduce((sum, job) => sum + (job.price || 0), 0); 
+  const todayJobs = await requestRepository.findCompletedJobsByProviderToday(providerId);
+  const totalEarnings = todayJobs.reduce((sum, job) => sum + Number(job.finalAmount || 0), 0);
 
-    return {
-        date: new Date().toLocaleDateString(),
-        completedJobsCount: todayJobs.length,
-        totalEarnings: totalEarnings,
-        jobs: todayJobs
-    };
+  return {
+    date: new Date().toLocaleDateString(),
+    completedJobsCount: todayJobs.length,
+    totalEarnings,
+    jobs: todayJobs,
+  };
 };
 
-exports.getNearbyPendingRequests = async (lng, lat, type) => {
-    return await requestRepository.findAvailableNearby(lng, lat, 10, type); // 10km ඇතුළත requests
-};
-
-// src/services/requestService.js
+exports.getNearbyPendingRequests = async (lng, lat, type) =>
+  requestRepository.findAvailableNearby(lng, lat, 10, type);
 
 exports.updateProviderLiveLocation = async (providerId, lng, lat, io) => {
-    // 1. User ගේ location එක update කරන්න
-    await userRepository.updateByIdLocation(providerId, lng, lat);
+  await userRepository.updateByIdLocation(providerId, lng, lat);
 
-    // 2. Repository එක හරහා active request එක හොයන්න
-    // කෙලින්ම Request.findOne කියල දාන්න එපා (import කරල නැති නිසා error එනවා)
-    const activeRequest = await requestRepository.findActiveRequestByProvider(providerId);
+  const activeRequest = await requestRepository.findActiveRequestByProvider(providerId);
+  if (activeRequest) {
+    const onlineUsers = getOnlineUsers();
+    const customerSocketId = onlineUsers.get(activeRequest.customerId.toString());
 
-    if (activeRequest) {
-        const onlineUsers = getOnlineUsers();
-        const customerSocketId = onlineUsers.get(activeRequest.customerId.toString());
-
-        if (customerSocketId) {
-            io.to(customerSocketId).emit("live_location_update", {
-                lat: parseFloat(lat),
-                lng: parseFloat(lng),
-                requestId: activeRequest._id
-            });
-            console.log(`📡 Live location sent to customer: ${activeRequest.customerId}`);
-        }
+    if (customerSocketId) {
+      io.to(customerSocketId).emit('live_location_update', {
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        requestId: activeRequest._id,
+      });
     }
+  }
 };
-

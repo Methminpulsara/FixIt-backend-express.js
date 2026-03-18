@@ -1,59 +1,51 @@
-const Request = require('../models/Request')
+const Request = require('../models/Request');
 
-exports.create = (data) =>{
-    return Request.create(data);
-};
+exports.create = (data) => Request.create(data);
 
-exports.findById = (id) =>{
-    return Request.findById(id)
-    .populate("customerId" , 'displayName phone')
-    .populate("providerId" , 'displayName phone')
+exports.findById = (id) =>
+  Request.findById(id)
+    .populate('customerId', 'displayName phone')
+    .populate('providerId', 'displayName phone');
 
-};
+exports.updateById = (id, data) =>
+  Request.findByIdAndUpdate(id, data, { new: true })
+    .populate('customerId', 'displayName phone')
+    .populate('providerId', 'displayName phone');
 
-exports.updateById =(id, data)=>{
-    return Request.findByIdAndUpdate(id , data, {new :true});
-};
-
-exports.find = (query) => {
-    return Request.find(query)
-        .populate('customerId', 'displayName phone')
-        .populate('providerId', 'displayName phone');
-};
+exports.find = (query) =>
+  Request.find(query)
+    .sort({ createdAt: -1 })
+    .populate('customerId', 'displayName phone')
+    .populate('providerId', 'displayName phone');
 
 exports.findCompletedJobsByProviderToday = (providerId) => {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
 
-    // කෙලින්ම Mongoose Query එක return කරනවා (Async/Await නැතිව)
-    return Request.find({
-        providerId: providerId,
-        status: 'completed',
-        completedAt: { $gte: startOfDay, $lte: endOfDay }
-    });
+  return Request.find({
+    providerId,
+    status: 'completed',
+    completedAt: { $gte: startOfDay, $lte: endOfDay },
+  });
 };
 
+exports.findAvailableNearby = (lng, lat, maxDistance, type) =>
+  Request.find({
+    status: 'pending',
+    requestType: type,
+    location: {
+      $near: {
+        $geometry: { type: 'Point', coordinates: [Number(lng), Number(lat)] },
+        $maxDistance: maxDistance * 1000,
+      },
+    },
+  }).populate('customerId', 'displayName phone');
 
-// get near proviedrs
-exports.findAvailableNearby = (lng, lat, maxDistance, type) => {
-    return Request.find({
-        status: "pending",
-        requestType: type,
-        location: {
-            $near: {
-                $geometry: { type: "Point", coordinates: [lng, lat] },
-                $maxDistance: maxDistance * 1000
-            }
-        }
-    }).populate("customerId", "displayName phone");
-};
-
-exports.findActiveRequestByProvider = (providerId) => {
-    return Request.findOne({
-        providerId: providerId,
-        status: "accepted"
-    });
-};
+exports.findActiveRequestByProvider = (providerId) =>
+  Request.findOne({
+    providerId,
+    status: { $in: ['accepted', 'in_progress'] },
+  });
