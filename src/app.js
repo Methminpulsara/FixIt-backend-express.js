@@ -14,7 +14,7 @@ const garageRoutes = require('./routes/garageRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-// const paymentRoutes = require('./routes/paymentRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.use('/api/v1/garage', garageRoutes);
 app.use('/api/v1/request', requestRoutes);
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/review', reviewRoutes);
-// app.use('/api/v1/payment', paymentRoutes);
+app.use('/api/v1/payment', paymentRoutes);
 
 // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

@@ -1,43 +1,10 @@
-const Garage = require("../models/Garage");
+const Garage = require('../models/Garage');
 
-exports.create = (garageData) => {
-    return Garage.create(garageData);
-};
-
-exports.findByUserId = (userId) => {
-    return Garage.findOne({ userId });
-};
-
-exports.updateByUserId = (userId, updateData) => {
-    return Garage.findOneAndUpdate({ userId }, updateData, { new: true });
-};
-
-exports.findPending = () => {
-    return Garage.find({ verificationStatus: "pending" }).populate('userId', '-password');
-};
-
-exports.updateVerificationStatus = (garageId, status, isVerified, options = {}) => {
-    return Garage.findByIdAndUpdate(
-        garageId,
-        { verificationStatus: status, isVerified: isVerified },
-        { new: true, ...options } // session එක මෙතනට pass වේ
-    ).populate('userId', '-password');
-};
-
-exports.addPhoto = (userId, fileUrl) => {
-    // Photos කියන්නේ array එකක් නිසා $push පාවිච්චි කරනවා
-    return Garage.findOneAndUpdate(
-        { userId }, 
-        { $push: { photos: fileUrl } }, 
-        { new: true }
-    );
-};
-
-exports.removePhoto = (userId , fileUrl) =>{
-    return Garage.findOneAndUpdate(
-        {userId},
-        {$pull : {photos:fileUrl}},
-        {new:true}
-    )
-}
-
+exports.create = (garageData) => Garage.create(garageData);
+exports.findByUserId = (userId) => Garage.findOne({ userId }).populate('userId', '-password');
+exports.updateByUserId = (userId, updateData) => Garage.findOneAndUpdate({ userId }, updateData, { new: true }).populate('userId', '-password');
+exports.findPending = () => Garage.find({ verificationStatus: 'pending' }).populate('userId', '-password').sort({ createdAt: -1 });
+exports.findHistory = () => Garage.find({ verificationStatus: { $in: ['approved', 'rejected'] } }).populate('userId', '-password').sort({ updatedAt: -1 });
+exports.updateVerificationStatus = (garageId, status, isVerified, options = {}) => Garage.findByIdAndUpdate(garageId, { verificationStatus: status, isVerified }, { new: true, ...options }).populate('userId', '-password');
+exports.addPhoto = (userId, fileUrl) => Garage.findOneAndUpdate({ userId }, { $push: { photos: fileUrl } }, { new: true });
+exports.removePhoto = (userId, fileUrl) => Garage.findOneAndUpdate({ userId }, { $pull: { photos: fileUrl } }, { new: true });

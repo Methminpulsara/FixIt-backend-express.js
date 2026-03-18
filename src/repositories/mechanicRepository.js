@@ -1,45 +1,24 @@
-const MechanicProfile = require("../models/Mechanic");
-const User = require('../models/User');
+const MechanicProfile = require('../models/Mechanic');
 
 exports.createProfile = (data) => MechanicProfile.create(data);
 
-// 💡 මෙතැනදී .populate එක එකතු කළා. එවිට User model එකේ තියෙන විස්තරත් ලැබෙනවා.
-exports.getByUserId = (userId) => {
-  return MechanicProfile.findOne({ userId }).populate(
-    "userId", 
-    "displayName email phone location"
-  );
-};
+exports.getByUserId = (userId) => (
+  MechanicProfile.findOne({ userId }).populate('userId', 'displayName email phone location username')
+);
 
-// update by user id
-exports.updateByUserId = (userId, data) => {
-  return MechanicProfile.findOneAndUpdate({ userId }, data, { new: true }).populate(
-    "userId", 
-    "displayName email phone location"
-  );
-};
+exports.updateByUserId = (userId, data) => (
+  MechanicProfile.findOneAndUpdate({ userId }, data, { new: true }).populate('userId', 'displayName email phone location username')
+);
 
-// Admin Approve/Reject
-exports.updateVerificationStatus = (id, data, options = {}) => {
-  // options හරහා session එක ලැබුණු විට එය MongoDB query එකට සම්බන්ධ වේ
-  return MechanicProfile.findByIdAndUpdate(
-    id, 
-    data, 
-    { new: true, ...options }
-  );
-};
-// ADMIN – FIND PENDING
-exports.findPending = () => {
-  return MechanicProfile.find({ verificationStatus: "pending" }).populate(
-    "userId",
-    "-password"
-  );
-};
+exports.updateVerificationStatus = (id, data, options = {}) => (
+  MechanicProfile.findByIdAndUpdate(id, data, { new: true, ...options }).populate('userId', '-password')
+);
 
+exports.findPending = () => MechanicProfile.find({ verificationStatus: 'pending' }).populate('userId', '-password').sort({ createdAt: -1 });
+exports.findHistory = () => MechanicProfile.find({ verificationStatus: { $in: ['approved', 'rejected'] } }).populate('userId', '-password').sort({ updatedAt: -1 });
 
-// Upload documents
 exports.updateDocuments = (userId, docType, fileUrl) => {
-    const update = {};
-    update[`documents.${docType}`] = fileUrl; // උදා: documents.nic
-    return MechanicProfile  .findOneAndUpdate({ userId }, { $set: update }, { new: true });
+  const update = {};
+  update[`documents.${docType}`] = fileUrl;
+  return MechanicProfile.findOneAndUpdate({ userId }, { $set: update }, { new: true });
 };
