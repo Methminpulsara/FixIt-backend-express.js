@@ -18,18 +18,15 @@ module.exports = (user, viewer) => {
         type: user.type
     };
 
-    // Profile fields
     if (visibility.showProfile || isOwner) {
         filtered.firstName = user.firstName;
         filtered.lastName = user.lastName;
     }
 
-    // Phone
     if ((visibility.showPhone && isMechanic) || isOwner) {
         filtered.phone = user.phone;
     }
 
-    // Location
     if ((visibility.showLocation && (isMechanic || isGarage)) || isOwner) {
         filtered.location = user.location;
     }

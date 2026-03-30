@@ -4,7 +4,7 @@ const app = require("./app");
 const connectDB = require("./config/db");
 const { initLocationSocket } = require("./realtime/locationSocket");
 
-connectDB(); // Connect DB first
+connectDB();
 
 const server = http.createServer(app);
 
@@ -13,7 +13,6 @@ const io = require("socket.io")(server, {
 });
 app.set("socketio", io); 
 
-// Initialize socket module
 initLocationSocket(io);
 
 const PORT = process.env.PORT || 5001;
