@@ -68,3 +68,16 @@ exports.updateProfileImage = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+exports.removeProfileImage = async (req, res) => {
+  try {
+    const data = await userService.removeProfileImage(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture removed',
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

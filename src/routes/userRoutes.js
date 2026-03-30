@@ -21,6 +21,10 @@ router.post('/upload-profile',
     uploadMiddleware.single('profilePic'),
     userController.updateProfileImage
 )
+router.delete('/upload-profile',
+    authMiddleware,
+    userController.removeProfileImage
+)
 
 
 

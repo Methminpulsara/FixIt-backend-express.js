@@ -38,3 +38,4 @@ exports.updateLocation = async (userId, location) => {
 };
 
 exports.updateProfileImage = async (userId, imageUrl) => userRepo.UpdateUserProfilePic(userId, imageUrl);
+exports.removeProfileImage = async (userId) => userRepo.UpdateUserProfilePic(userId, '');

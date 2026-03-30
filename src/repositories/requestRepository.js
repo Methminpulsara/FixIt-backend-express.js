@@ -4,19 +4,19 @@ exports.create = (data) => Request.create(data);
 
 exports.findById = (id) =>
   Request.findById(id)
-    .populate('customerId', 'displayName phone')
-    .populate('providerId', 'displayName phone');
+    .populate('customerId', 'displayName phone profilePic')
+    .populate('providerId', 'displayName phone profilePic');
 
 exports.updateById = (id, data) =>
   Request.findByIdAndUpdate(id, data, { new: true })
-    .populate('customerId', 'displayName phone')
-    .populate('providerId', 'displayName phone');
+    .populate('customerId', 'displayName phone profilePic')
+    .populate('providerId', 'displayName phone profilePic');
 
 exports.find = (query) =>
   Request.find(query)
     .sort({ createdAt: -1 })
-    .populate('customerId', 'displayName phone')
-    .populate('providerId', 'displayName phone');
+    .populate('customerId', 'displayName phone profilePic')
+    .populate('providerId', 'displayName phone profilePic');
 
 exports.findCompletedJobsByProviderToday = (providerId) => {
   const startOfDay = new Date();
@@ -42,7 +42,7 @@ exports.findAvailableNearby = (lng, lat, maxDistance, type) =>
         $maxDistance: maxDistance * 1000,
       },
     },
-  }).populate('customerId', 'displayName phone');
+  }).populate('customerId', 'displayName phone profilePic');
 
 exports.findActiveRequestByProvider = (providerId) =>
   Request.findOne({
