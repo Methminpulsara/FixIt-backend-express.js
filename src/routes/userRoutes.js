@@ -7,14 +7,11 @@ const uploadMiddleware = require('../middleware/uploadMiddleware')
 
 
 
-// Owen profile manage
 router.get("/me", authMiddleware , userController.getMyProfile)
 router.put("/me", authMiddleware, userController.updateMyProfile)
 
-// Public profile (with privacy filtering)
 router.get("/:id", privacy , userController.getUserProfile)
 
-// Visibility settings
 router.patch("/me/visibility" , authMiddleware , userController.updateVisibiitySettings)
 
 router.put("/location", authMiddleware, userController.updateLocation);
