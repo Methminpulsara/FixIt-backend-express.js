@@ -68,7 +68,7 @@ exports.completeRequest = async (req, res) => {
 
 exports.getNearbyRequests = async (req, res) => {
   try {
-    const { lng, lat } = req.query;
+    const { lng, lat, radius } = req.query;
     const type = req.user.type;
     const requests = await requestService.getNearbyPendingRequests(lng, lat, type, radius);
     res.json({ success: true, data: requests });
