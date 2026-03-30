@@ -1,4 +1,3 @@
-// src/controllers/garageController.js
 
 const garageService = require('../services/garageService');
 
