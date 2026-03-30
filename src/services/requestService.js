@@ -17,9 +17,14 @@ const toggleProviderAvailability = async (providerId, requestType, isAvailable) 
 exports.createServiceRequest = async (customerId, data, io) => {
   const lng = Number(data.lng);
   const lat = Number(data.lat);
+  const searchRadius = Number(data.searchRadius || 5);
 
   if (Number.isNaN(lng) || Number.isNaN(lat)) {
     throw new Error('Invalid location coordinates.');
+  }
+
+  if (Number.isNaN(searchRadius) || searchRadius <= 0) {
+    throw new Error('Invalid search radius.');
   }
 
   const requestData = {
@@ -37,7 +42,7 @@ exports.createServiceRequest = async (customerId, data, io) => {
 
   const newRequest = await requestRepository.create(requestData);
 
-  const nearProviders = await providerRepository.findNearProviders(lng, lat, 5, data.requestType);
+  const nearProviders = await providerRepository.findNearProviders(lng, lat, searchRadius, data.requestType);
   const onlineUsers = getOnlineUsers();
 
   nearProviders.forEach((provider) => {
@@ -188,8 +193,15 @@ exports.getProviderTodayStats = async (providerId) => {
   };
 };
 
-exports.getNearbyPendingRequests = async (lng, lat, type) =>
-  requestRepository.findAvailableNearby(lng, lat, 10, type);
+exports.getNearbyPendingRequests = async (lng, lat, type, radius = 10) => {
+  const searchRadius = Number(radius || 10);
+
+  if (Number.isNaN(searchRadius) || searchRadius <= 0) {
+    throw new Error('Invalid radius.');
+  }
+
+  return requestRepository.findAvailableNearby(lng, lat, searchRadius, type);
+};
 
 exports.updateProviderLiveLocation = async (providerId, lng, lat, io) => {
   await userRepository.updateByIdLocation(providerId, lng, lat);
@@ -207,4 +219,124 @@ exports.updateProviderLiveLocation = async (providerId, lng, lat, io) => {
       });
     }
   }
+};
+
+exports.editServiceRequest = async (customerId, requestId, data, io) => {
+  const request = await requestRepository.findById(requestId);
+  if (!request) throw new Error('Service Request not found.');
+
+  const requestCustomerId = request.customerId._id
+    ? request.customerId._id.toString()
+    : request.customerId.toString();
+
+  if (requestCustomerId !== customerId.toString()) {
+    throw new Error('You are not authorized to edit this request.');
+  }
+
+  if (request.status !== 'pending') {
+    throw new Error('Only pending requests can be edited.');
+  }
+
+  const updateData = {};
+
+  if (data.requestType) updateData.requestType = data.requestType;
+  if (data.issueDescription) updateData.issueDescription = data.issueDescription;
+  if (data.vehicleDetails !== undefined) updateData.vehicleDetails = data.vehicleDetails;
+  if (data.estimatedCost !== undefined) updateData.estimatedCost = data.estimatedCost;
+  if (data.damageImage !== undefined) updateData.damageImage = data.damageImage;
+
+  if (data.lng !== undefined && data.lat !== undefined) {
+    const lng = Number(data.lng);
+    const lat = Number(data.lat);
+
+    if (Number.isNaN(lng) || Number.isNaN(lat)) {
+      throw new Error('Invalid location coordinates.');
+    }
+
+    updateData.location = {
+      type: 'Point',
+      coordinates: [lng, lat],
+    };
+  }
+
+  const updatedRequest = await requestRepository.updateById(requestId, updateData);
+
+  const searchRadius = Number(data.searchRadius || 5);
+  const coords = updatedRequest.location.coordinates;
+  const lng = Number(coords[0]);
+  const lat = Number(coords[1]);
+
+  const nearProviders = await providerRepository.findNearProviders(
+    lng,
+    lat,
+    searchRadius,
+    updatedRequest.requestType
+  );
+
+  const onlineUsers = getOnlineUsers();
+
+  nearProviders.forEach((provider) => {
+    const targetUserId = provider.userId?._id
+      ? provider.userId._id.toString()
+      : provider.userId.toString();
+
+    const socketId = onlineUsers.get(targetUserId);
+    if (socketId) {
+      io.to(socketId).emit('new_service_request', {
+        requestId: updatedRequest._id,
+        customerName: 'A customer',
+        issue: updatedRequest.issueDescription,
+        distance: 'Nearby',
+        requestType: updatedRequest.requestType,
+        damageImage: updatedRequest.damageImage,
+      });
+    }
+  });
+
+  return updatedRequest;
+};
+
+exports.cancelServiceRequest = async (customerId, requestId, io) => {
+  const request = await requestRepository.findById(requestId);
+  if (!request) throw new Error('Service Request not found.');
+
+  const requestCustomerId = request.customerId._id
+    ? request.customerId._id.toString()
+    : request.customerId.toString();
+
+  if (requestCustomerId !== customerId.toString()) {
+    throw new Error('You are not authorized to cancel this request.');
+  }
+
+  if (request.status === 'completed' || request.status === 'cancelled') {
+    throw new Error('This request cannot be cancelled.');
+  }
+
+  if (request.status === 'in_progress') {
+    throw new Error('You cannot cancel a request that is already in progress.');
+  }
+
+  const updatedRequest = await requestRepository.updateById(requestId, {
+    status: 'cancelled',
+  });
+
+  if (request.providerId) {
+    const providerId = request.providerId._id
+      ? request.providerId._id.toString()
+      : request.providerId.toString();
+
+    await toggleProviderAvailability(providerId, request.requestType, true);
+
+    const onlineUsers = getOnlineUsers();
+    const providerSocketId = onlineUsers.get(providerId);
+
+    if (providerSocketId) {
+      io.to(providerSocketId).emit('request_cancelled', {
+        requestId,
+        message: 'The customer cancelled this request.',
+      });
+    }
+  }
+
+  return updatedRequest;
 };
