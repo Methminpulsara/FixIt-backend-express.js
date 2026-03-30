@@ -18,19 +18,19 @@ exports.findNearProviders = async (lng, lat, maxDistance, type) => {
 
     const userIds = nearbyUsers.map(u => u._id);
 
-    // 2. ඒ සොයාගත් අයගෙන් 'Approved' සහ 'Available' අය විතරක් පෙරා ගන්නවා (Filter)
+// for search aproved and available providers
     if (type === "mechanic") {
         return await Mechanic.find({
             userId: { $in: userIds },
-            verificationStatus: "approved", // 💡 අනිවාර්යයි
-            isAvailable: true               // 💡 අනිවාර්යයි
+            verificationStatus: "approved",
+            isAvailable: true               
         }).populate("userId", "displayName location phone");
 
     } else if (type === "garage") {
         return await Garage.find({
             userId: { $in: userIds },
-            verificationStatus: "approved", // 💡 අනිවාර්යයි
-            isAvailable: true               // 💡 අනිවාර්යයි
+            verificationStatus: "approved",
+            isAvailable: true               
         }).populate("userId", "displayName location phone");
     }
     

@@ -26,29 +26,25 @@ exports.getAverageRating = (providerId) => {
             }
         }
     ]).then(stats => {
-        // Promise එකක් ඇතුළේ data ටික format කරලා යවනවා
         return stats.length > 0 ? stats[0] : { averageRating: 0, count: 0 };
     });
 };
 
-// අන්තිමට ලැබුණු Review Comments කිහිපය ලබා ගැනීම
 exports.getLatestReviews = (providerId, limit = 3) => {
     return Review.find({ providerId })
         .sort({ createdAt: -1 })
         .limit(limit)
-        .populate('customerId', 'displayName'); // පාරිභෝගිකයාගේ නම පෙන්වීමට
+        .populate('customerId', 'displayName');
 };
 
 exports.update = (reviewId, data) => {
     return Review.findByIdAndUpdate(reviewId, data, { new: true });
 };
 
-// Review එකක් delete කිරීම
 exports.delete = (reviewId) => {
     return Review.findByIdAndDelete(reviewId);
 };
 
-// ID එකෙන් review එකක් සෙවීම
 exports.findById = (reviewId) => {
     return Review.findById(reviewId);
 };
