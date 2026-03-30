@@ -1,9 +1,8 @@
-const Message = require('../models/Message'); 
+const Message = require('../models/Message');
 
 module.exports = (io, socket, onlineUsers) => {
-    console.log("🛠️ Chat Handler attached to socket:", socket.id); 
+    console.log("🛠️ Chat Handler attached to socket:", socket.id);
 
-// send messge 
     const sendMessage = async (data) => {
         const { requestId, receiverId, message } = data;
         const senderId = socket.userId;
@@ -16,7 +15,6 @@ module.exports = (io, socket, onlineUsers) => {
         console.log(`💬 Message from ${senderId} to ${receiverId}: ${message}`);
 
         try {
-            // save in the DB 
             const newMessage = new Message({
                 requestId,
                 senderId,
@@ -45,22 +43,22 @@ module.exports = (io, socket, onlineUsers) => {
     };
 
     const markAsRead = async (data) => {
-        const { requestId, senderId } = data; 
+        const { requestId, senderId } = data;
         const currentUserId = socket.userId;
 
         try {
-           
+
             await Message.updateMany(
                 { requestId, senderId, receiverId: currentUserId, isRead: false },
                 { $set: { isRead: true } }
             );
 
-        
+
             const senderSocketId = onlineUsers.get(senderId);
             if (senderSocketId) {
-                io.to(senderSocketId).emit("messages_seen", { 
-                    requestId, 
-                    seenBy: currentUserId 
+                io.to(senderSocketId).emit("messages_seen", {
+                    requestId,
+                    seenBy: currentUserId
                 });
                 console.log(`👀 Seen status sent to ${senderId}`);
             }
